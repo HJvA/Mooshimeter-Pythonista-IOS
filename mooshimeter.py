@@ -37,11 +37,12 @@ dtTypes = {	# (nBytes, Signed, Name)
 	}
 
 class MooshiMeterDevice (object):
-	"""
+	""" interface to the mooshimeter multimeter using bluetooth on pythonista
 	"""
 		
 	def __init__(self, periph_uid=None):
-		"""
+		""" search for mooshimeter devices with periph_uid in their peripheral UUID code
+			gets command tree from the instrument and prints it to the console
 		"""
 		PerfName='Mooshi'
 		lod = [{cbBLE.chPERF:PerfName, cbBLE.chID:i, cbBLE.chPUID:periph_uid, cbBLE.chCUID:None} 
@@ -161,7 +162,7 @@ class MooshiMeterDevice (object):
 		return None,i
 
 	def print_command_tree(self,idx=0,lev=0):
-		"""
+		""" prints available commands, including parameter type and shortcodes and childs to the console
 		"""
 		i=idx	
 		nbase=self.cmd_tree[idx]['nchilds']
@@ -176,7 +177,8 @@ class MooshiMeterDevice (object):
 		return i-idx
 					
 	def send_cmd(self,cmdstr,NumPayload=None):
-		"""
+		""" sends a commmand to the instrument. the cmdstr must be composed as <parent>:<child> 
+			where parent and child must be pairs in the command tree
 		"""
 		if ' ' in cmdstr:
 			cmd = cmdstr.split(' ')[0]
