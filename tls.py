@@ -1,4 +1,5 @@
 import struct
+import datetime
 
 def populate_lod(lod, csv_fp, fields=['id','name']):
 	'''
@@ -34,6 +35,9 @@ def lookup_lod(lod, **kw):
 		else:
 			return row,i
 	return None,-1
+
+def timedelta_since(dtStart=datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)):
+	return  datetime.datetime.now(tz=datetime.timezone.utc) -dtStart 
 
 def num_to_bytes(num): 
 	""" not good
@@ -81,4 +85,6 @@ def num_to_bytes(num):
 			r = struct.unpack("f",struct.pack("BBBB",*bytes[i:i+4]))
 			i += 4
 			return r[0]
-
+			
+if __name__=="__main__":
+	print('seconds since 1-1-1970 : %s' % int(timedelta_since().total_seconds()))

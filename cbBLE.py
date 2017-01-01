@@ -16,6 +16,7 @@ cbPropMsg = [
 	(cb.CH_PROP_WRITE_WITHOUT_RESPONSE,'Write no response')
 	]
 
+# dict keys for perepheral scanning
 chPERF =0
 chID =1
 chPUID =2
@@ -32,7 +33,6 @@ class bleDelegate (object):
 	def __init__(self,lodBLE):
 		"""
 		"""
-		#self.perfName = peripheralName
 		self.peripherals = []
 		self.lodCharist=lodBLE
 		ar = (r[chPERF] for r in self.lodCharist)
@@ -52,14 +52,10 @@ class bleDelegate (object):
 		if len(self.charFound)==0:
 			return False
 		return len(self.charFound)>=len(self.lodCharist)
-		charCnt=0
-		for chRec in self.charFound:
-			perf=chRec['periph']
-			isin = query_lod(self.lodCharist, lambda rw:rw[chPERF] in perf.name)	
-			charCnt += len(isin)
-		return len(self.charFound) >= charCnt
-
+		
 	def _inLod(self,perf):
+		""" 
+		"""
 		if not perf.name:
 			return []
 		isin = tls.query_lod(self.lodCharist, 
@@ -72,7 +68,7 @@ class bleDelegate (object):
 				lambda rw:rw[chPERF] in perf.name and (not rw[chPUID]) and (not rw[chCUID]))
 		return isin
 
-	def PerfQueueSyncer(self,perf):
+	def _PerfQueueSyncer(self,perf):
 		isin = self._inLod(perf) 
 		if not isin:
 			print('nothing assigned for perf:%s' % perf.name)
@@ -118,20 +114,23 @@ class bleDelegate (object):
 
 	def did_discover_services(self, p, error):
 		print('found %d services for %s (%s) busy:%d' % (len(p.services),p.name,p.uuid,len(self.chQueue)))
-		if self.PerfQueueSyncer(p):
+		if self._PerfQueueSyncer(p):
 			print('discovering characteristics n:%d for %s' % (len(self.chQueue),p.name))
 			for s in p.services:
-				p.discover_characteristics(s)
+				if s.primary:
+					p.discover_characteristics(s)
+				else:
+					print('%s primary:%d' % (s.uuid,s.primary))
 			
 	def did_discover_characteristics(self, s, error):
 		print('%d characteristics for serv:%s (prim:%s)' % (len(s.characteristics),s.uuid,s.primary))
 		for c in s.characteristics:
-			if len(self.chQueue)==0:   #.empty():
+			if len(self.chQueue)==0:  
 				print('nothing to discover anymore for act peripheral')
 				break
 			else:
 				perf =self.chQueue[-1] # preview
-				for lodr in self._inLod(perf): # perf matches crit
+				for lodr in self._inLod(perf): # perf matches criteria
 					isFnd,idx = tls.lookup_lod(self.charFound, chId=lodr[chID] )
 					if isFnd is not None:
 						print('id %d allready found with %s' % (lodr[chID],c.uuid)) # should not happen
@@ -142,13 +141,6 @@ class bleDelegate (object):
 						self.charFound.append(dict(chId=lodr[chID], periph=perf, charis=c))
 						break
 						
-						if c.properties & cb.CH_PROP_WRITE:
-							perf.set_notify_value(c, True)
-							perf.write_characteristic_value(c,bytes([0x00,0x01]))
-						self.chCount += 1
-						break
-						#self.chQueue.task_done()
-
 	def did_write_value(self, c, error):
 		#print('Did write val to c:%s' % (c.uuid,))
 		pass
@@ -211,7 +203,6 @@ def discover_BLE_characteristics(lodBLE):
 		time.sleep(1)
 	print('found %d characteristics' % len(Delg.charFound))
 	cb.stop_scan()
-	#cb.reset()
 	return Delg	
 	
 	
