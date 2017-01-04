@@ -1,7 +1,10 @@
+""" interface to pythonista version cb of 'CoreBluetooth'
+"""
 import cb
 import tls
 import time
 from collections import deque
+import logging
 
 cbPropMsg = [
 	(cb.CH_PROP_AUTHENTICATED_SIGNED_WRITES,'Authenticated'),
@@ -36,7 +39,7 @@ class bleDelegate (object):
 		self.peripherals = []
 		self.lodCharist=lodBLE
 		ar = (r[chPERF] for r in self.lodCharist)
-		print('### ble Scanning %d peripherals ###' % len(set(ar)))
+		logging.info('### ble Scanning %d peripherals ###' % len(set(ar)))
 		self.chQueue = deque()  #queue.Queue()
 		self.charFound =[]
 		self.respCallback=self._exampleRespCallback
@@ -71,16 +74,16 @@ class bleDelegate (object):
 	def _PerfQueueSyncer(self,perf):
 		isin = self._inLod(perf) 
 		if not isin:
-			print('nothing assigned for perf:%s' % perf.name)
+			logging.error('nothing assigned for perf:%s' % perf.name)
 			return False
 		else:
 			tmo=5 # timeout
 			while len(self.chQueue)>0:  
-				print("still waiting for discovery n:%d state:%d" % (len(self.chQueue),cb.get_state()))
+				logging.warning("still waiting for discovery n:%d state:%d" % (len(self.chQueue),cb.get_state()))
 				time.sleep(1)
 				if tmo<=0:
 					p=self.chQueue.pop()
-					print('timeout for peripheral %s' % p.name)
+					logging.error('timeout for peripheral %s' % p.name)
 				tmo-=1
 			#self.chQueue.join()  # wait for all characteristics found	
 			for d in isin:
@@ -91,52 +94,52 @@ class bleDelegate (object):
 		if not p.name:
 			return
 		isin = self._inLod(p)			
-		print('testing peripheral: %s state %d (%s) isin:%d' % (p.name,p.state, p.uuid, len(isin)))
+		logging.info('testing peripheral: %s state %d (%s) isin:%d' % (p.name,p.state, p.uuid, len(isin)))
 		if p.state > 0: # allready connecting
 			return
 		if len(isin)>0:	# matching lod
 			#self.charFound.append(dict(perf=p))
 			self.peripherals.append(p) # keep reference!
-			print('connecting %s' % p.name)
+			logging.info('connecting %s' % p.name)
 			cb.connect_peripheral(p)
 			
 	def did_connect_peripheral(self, p):
-		print('*** Connected: %s (%s)' % (p.name,p.uuid))		
+		logging.info('*** Connected: %s (%s)' % (p.name,p.uuid))		
 		p.discover_services()
 
 	def did_fail_to_connect_peripheral(self, p, error):
-		print('Failed to connect %s because %s' % (p.name,error))
+		logging.error('Failed to connect %s because %s' % (p.name,error))
 		#self.peripherals.remove(p)
 
 	def did_disconnect_peripheral(self, p, error):
-		print('Disconnected %s, error: %s' % (p.name,error))
+		logging.info('Disconnected %s, error: %s' % (p.name,error))
 		self.peripherals.remove(p)
 
 	def did_discover_services(self, p, error):
-		print('found %d services for %s (%s) busy:%d' % (len(p.services),p.name,p.uuid,len(self.chQueue)))
+		logging.info('found %d services for %s (%s) busy:%d' % (len(p.services),p.name,p.uuid,len(self.chQueue)))
 		if self._PerfQueueSyncer(p):
-			print('discovering characteristics n:%d for %s' % (len(self.chQueue),p.name))
+			logging.info('discovering characteristics n:%d for %s' % (len(self.chQueue),p.name))
 			for s in p.services:
 				if s.primary:
 					p.discover_characteristics(s)
 				else:
-					print('%s primary:%d' % (s.uuid,s.primary))
+					logging.info('%s primary:%d' % (s.uuid,s.primary))
 			
 	def did_discover_characteristics(self, s, error):
-		print('%d characteristics for serv:%s (prim:%s)' % (len(s.characteristics),s.uuid,s.primary))
+		logging.info('%d characteristics for serv:%s (prim:%s)' % (len(s.characteristics),s.uuid,s.primary))
 		for c in s.characteristics:
 			if len(self.chQueue)==0:  
-				print('nothing to discover anymore for act peripheral')
+				logging.info('nothing to discover anymore for act peripheral')
 				break
 			else:
 				perf =self.chQueue[-1] # preview
 				for lodr in self._inLod(perf): # perf matches criteria
 					isFnd,idx = tls.lookup_lod(self.charFound, chId=lodr[chID] )
 					if isFnd is not None:
-						print('id %d allready found with %s' % (lodr[chID],c.uuid)) # should not happen
+						logging.warning('id %d allready found with %s' % (lodr[chID],c.uuid)) # should not happen
 					elif not lodr[chCUID] or lodr[chCUID] in c.uuid:
 						perf = self.chQueue.pop()  #get(False)
-						print("++ charist %d %s (notif:%d)-->%s" %
+						logging.info("++ charist %d %s (notif:%d)-->%s" %
 							(lodr[chID],c.uuid,c.notifying, MaskedPropMsg(cbPropMsg,c.properties)))
 						self.charFound.append(dict(chId=lodr[chID], periph=perf, charis=c))
 						break
@@ -148,12 +151,12 @@ class bleDelegate (object):
 	def did_update_value(self, c, error):
 		if self.respCallback is None:
 			sval = ''.join('{:02x}'.format(x) for x in c.value)
-			print('Updated value: %s from %s' % (sval,c.uuid))
+			logging.info('Updated value: %s from %s' % (sval,c.uuid))
 		else:
 			self.respCallback(c.value)
 		
 	def did_update_state(self):
-		print('update state:%s' % self.peripheral.state)	
+		logging.info('update state:%s' % self.peripheral.state)	
 									
 	def write_characteristic(self,chId,chData):
 		"""
@@ -168,12 +171,12 @@ class bleDelegate (object):
 		rec['periph'].read_characteristic_value(rec['charis'])
 
 	def setup_response(self,charId,respCallback=None):
-		"""
+		""" setup notifyer or just get value of characteristic
 		"""
 		rec,idx = tls.lookup_lod(self.charFound, chId=charId)
 		p=rec['periph']
 		c=rec['charis']
-		print('setup response for %s with prop:%s notif:%d' % (p.name,MaskedPropMsg(cbPropMsg,c.properties),c.notifying))
+		logging.info('setup response for %s with prop:%s notif:%d' % (p.name,MaskedPropMsg(cbPropMsg,c.properties),c.notifying))
 		#if respCallback is not None:
 		self.respCallback = respCallback
 		if c.notifying:
@@ -187,26 +190,30 @@ class bleDelegate (object):
 					
 	def _exampleRespCallback(self,cValue):	
 		sval = ''.join('{:02x}'.format(x) for x in cValue)
-		print('Updated value: %s from %s' % (sval,'?!'))
+		logging.info('Updated value: %s from %s' % (sval,'?!'))
 		
 			
 def discover_BLE_characteristics(lodBLE):
+	""" discover bleutooth le peripherals and their chracteristics
+		expects lodBLE : a list of dictionaries defining what to be searched
+		returns bleDelegate object
 	"""
-	"""
+	logging = tls.console_logger()
 	cb.set_verbose(True)
 	cb.reset()
 	Delg = bleDelegate(lodBLE)	
 	cb.set_central_delegate(Delg)
 	cb.scan_for_peripherals()
-	print('Waiting for callbacks state=%s' % (cb.get_state()))
+	logging.info('Waiting for callbacks state=%s' % (cb.get_state()))
 	while not Delg.allFound():
 		time.sleep(1)
-	print('found %d characteristics' % len(Delg.charFound))
+	logging.info('found %d characteristics' % len(Delg.charFound))
 	cb.stop_scan()
 	return Delg	
 	
 	
 if __name__=="__main__":
+	logging = tls.console_logger()
 	PerfName='Mooshi'
 	SERIN = 0
 	SEROUT = 1

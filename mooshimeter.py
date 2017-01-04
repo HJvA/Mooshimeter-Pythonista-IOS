@@ -4,6 +4,7 @@ import time
 import zlib
 import binascii
 import struct
+import logging
 
 SERIN  = 0
 SEROUT = 1
@@ -27,7 +28,7 @@ dtTypes = {	# (nBytes, Signed, Name, struct.pack_code)
 	dtCHOOSER:(1,False,'CHOOSER','B'),
 	dtU8     :(1,False,'U8',     'B'),
 	dtU16    :(2,False,'U16',    'H'),
-	dtU32    :(4,False,'U32',    'I'),
+	dtU32    :(4,False,'U32',    '<I'),
 	dtS8     :(1,True,'S8',      'b'),
 	dtS16    :(2,True,'S16',     'h'),
 	dtS32    :(4,True,'S32',     'i'),
@@ -65,7 +66,7 @@ class MooshiMeterDevice (object):
 		self.cmd_tree = []
 		self.snode_vals ={}
 		self.ch1Val_scode = self.ch2Val_scode = None
-		#self.ch1val = self.ch2val = float('NaN')
+		self.newVal=False
 		
 	def close(self):
 		self.cbDelg.close()
@@ -83,40 +84,48 @@ class MooshiMeterDevice (object):
 				self.ch2Val_scode = self._lookup_node('CH2:VALUE')['scode']
 				self.snode_vals[self.ch1Val_scode]=float('nan')
 				self.snode_vals[self.ch2Val_scode]=float('nan')
-				print('received tree items:%d ch1Val_scode:%d' % (len(self.cmd_tree),self.ch1Val_scode))
-				self.print_command_tree()
+				logging.info('received tree items:%d ch1Val_scode:%d' % (len(self.cmd_tree),self.ch1Val_scode))
+				#self.print_command_tree()
+		elif shortcode==5:  # TIME_UTC but may have other results
+			if 5<len(self.aggregate)<23:
+				pass
+			else:
+				self.snode_vals[shortcode] = self.bytes_to_var(self.aggregate[1:5], dtU32)
+				logging.info('t utc %d len(%d)' % (self.snode_vals[shortcode],len(self.aggregate)))
+				if len(self.aggregate) >= 23:
+					self.newVal=True
+					val1 = self.bytes_to_var(self.aggregate[5:9])
+					self.snode_vals[self.ch1Val_scode] = self.bytes_to_var(self.aggregate[9:13])
+					val2 = self.bytes_to_var(self.aggregate[13:14], dtU8)
+					self.snode_vals[self.ch2Val_scode] = self.bytes_to_var(self.aggregate[14:18])
+					val3 = self.bytes_to_var(self.aggregate[18:19], dtU8)
+					val4 = self.bytes_to_var(self.aggregate[19:])
+					logging.info(' extra vals?:(%s)' % [val1,val2,val3,val4])
+				self.aggregate = bytearray()
 		else:  # receiving ordinary nodes
 			rec,idx = tls.lookup_lod(self.cmd_tree, scode=shortcode)
 			sval = ''.join('{:02x}'.format(x) for x in cValue)
 			if rec is None:
-				print('unknown node scode:%d val:%s' % (shortcode,sval))
+				logging.warning('unknown node scode:%d val:%s' % (shortcode,sval))
 				self.aggregate = bytearray()
 				return
 			dtType = dtTypes[rec['ntype']]
-			print('data:%s (cumlen:%d) from %s(%d) t:%s' % (sval,len(self.aggregate),rec['node'],shortcode,dtType[2]))
+			logging.info('data:%s (cumlen:%d) from %s(%d) t:%s' % (sval,len(self.aggregate),rec['node'],shortcode,dtType[2]))
 			if dtType[0]==0: # unknown len (over 1 or more blocks?)
 				expected_len = self.aggregate[1] + self.aggregate[2]*255 + 3
 				if len(self.aggregate) >= expected_len:
 					if rec['ntype']==dtSTR:
-						print('STR:%s' % self.aggregate[3:].decode('ascii'))
+						logging.info('STR:%s' % self.aggregate[3:].decode('ascii'))
 					elif rec['ntype']==dtBIN:
 						vals = struct.iter_unpack('f',self.aggregate[6:])
-						print(','.join('{:}'.format(x) for x in vals))
+						logging.info(','.join('{:}'.format(x) for x in vals))
 					self.aggregate = bytearray() # release memory
-			else:							
-				if rec['ntype']==dtFLT: # it is a float type
-					if len(self.aggregate[1:]) != dtType[0]: # bad length
-						fVal = float('NaN')
-					else:
-						fVal = struct.unpack(dtType[3],self.aggregate[1:])[0]
-					self.snode_vals[shortcode]=fVal
-					#print('other FLT:%f' % fVal)
-					print('RSLT %s=%f ch2=%f' % ('ch1',self.snode_vals[self.ch1Val_scode],self.snode_vals[self.ch2Val_scode]))
-				elif rec['ntype'] in (dtU8,dtU16,dtU32,dtS8,dtS16,dtS32,dtCHOOSER) and len(self.aggregate[1:]) == dtType[0]:
-					self.snode_vals[shortcode] = struct.unpack(dtType[3],self.aggregate[1:])[0]
-					print('rcved scode(%d):%d ntype:%d:%s' % (rec['scode'],self.snode_vals[shortcode],rec['ntype'],dtType))
+			else:
+				if rec['ntype'] in (dtU8,dtU16,dtU32,dtS8,dtS16,dtS32,dtCHOOSER,dtFLT):
+					self.snode_vals[shortcode] = self.bytes_to_var(self.aggregate[1:dtType[0]+1],rec['ntype'])
+					logging.info('rcved scode(%d):%s ntype:%d:%s' % (shortcode,self.snode_vals[shortcode],rec['ntype'],dtType))
 				else:
-					print('rec scode:%d ntype:%d:%s' % (rec['scode'],rec['ntype'],dtType))
+					logging.info('rec scode:%d ntype:%d:%s' % (rec['scode'],rec['ntype'],dtType))
 				self.aggregate = bytearray() # release memory
 
 
@@ -146,9 +155,9 @@ class MooshiMeterDevice (object):
 					self.snode_vals[shortcode]=None		
 				#print(rec)
 				self.cmd_tree.append(rec)	
-			print('tree done %d crc:%0x' % (i,crc32))
+			logging.info('tree done %d crc:%0x' % (i,crc32))
 			crc32= 0x4a5c7914 # this is the expected value
-			self.send_command('ADMIN:CRC32',struct.pack('>I',crc32)) 
+			self.send_command('ADMIN:CRC32',  struct.pack('>I',crc32)) 
 			#self.send_command('ADMIN:CRC32',crc32)
 			return True
 		else:
@@ -212,18 +221,18 @@ class MooshiMeterDevice (object):
 	def send_command(self,nodeName,PayLoad=None):
 		"""
 		"""
-		print('type %s' % type(PayLoad))
+		#print('type %s' % type(PayLoad))
 		rec = self._lookup_node(nodeName)
 		scode = rec['scode']
 		ntype = rec['ntype']
 		dtType = dtTypes[ntype]
 		nbytes = dtType[0]
 		if scode<0:
-			print('ERROR node not a command :%s' % nodeName)
+			logging.error('ERROR node not a command :%s' % nodeName)
 		else:
 			if PayLoad is None:
 				cmd = bytearray((0,scode))
-				print('requesting node value %s(%d)' % (nodeName,scode))
+				logging.info('requesting node value %s(%d)' % (nodeName,scode))
 			elif type(PayLoad) == bytes:
 				cmd = bytearray((0,scode + 0x80 )) + PayLoad
 			elif ntype >= dtCHOOSER:
@@ -232,23 +241,41 @@ class MooshiMeterDevice (object):
 				bytesValue = self.var_to_bytes(PayLoad,ntype)
 				cmd = bytearray((0,scode + 0x80 )) + bytesValue[-nbytes:]
 				sval = ''.join('{:02x}'.format(x) for x in bytesValue[-nbytes:])
-				print('send payload %s to %s(%d) dt:%s' % (sval,nodeName,scode,dtType))
+				logging.info('send payload %s to %s(%d) dt:%s' % (sval,nodeName,scode,dtType))
 			self.cbDelg.write_characteristic(SERIN, bytes(cmd))		
-			time.sleep(1)
+			time.sleep(0.1)
 	
-	def var_to_bytes(self,num,ntype=dtU8):
+	def var_to_bytes(self,var,ntype=dtU8):
 		if ntype is None:
-			if type(num)==float:
+			if type(var)==float:
 				ntype=dtFLT
-			elif type(num==int):
+			elif type(var==int):
 				ntype=dtS32
-			elif type(num)==string:
+			elif type(var)==string:
 				ntype=dtSTR
-		return struct.pack(dtTypes[ntype][3],num)
+		return struct.pack(dtTypes[ntype][3],var)
+		
+	def bytes_to_var(self,bytes,ntype=dtFLT):
+		if len(bytes)<dtTypes[ntype][0]:
+			logging.error('bad bytes len: %d for ntype:%s' % (len(bytes),dtTypes[ntype]))
+			if ntype==dtFLT:
+				return float('nan')
+			return None
+		return struct.unpack(dtTypes[ntype][3],bytes)[0]
+		
+	def get_new_values(self, vals_scodes=None):
+		if vals_scodes is None:
+			vals_scodes = (self.ch1Val_scode,self.ch2Val_scode)
+		if self.newVal:
+			self.newVal=False
+			return [self.snode_vals[sc] for sc in vals_scodes]
+		return None
 		
 if __name__=="__main__":
+	logging.basicConfig(filename='mooshi.log', filemode='w', format='%(levelname)s:%(message)s', level=logging.DEBUG)
 	meter = MooshiMeterDevice('FB55')       # ('FB55') is my meter (can be omitted)
 	time.sleep(2)
+	meter.print_command_tree()
 	if False:
 		meter.send_cmd('REBOOT',0)
 		time.sleep(2)
@@ -275,21 +302,20 @@ if __name__=="__main__":
 	meter.send_cmd('CH2:OFFSET')            # GET OFFSET ?
 	meter.send_cmd('ADMIN:DIAGNOSTIC')
 	#meter.send_cmd('CH2:BUF')               #
-	#meter.send_cmd('LOG:INTERVAL')          # ms/1000
+	meter.send_cmd('LOG:INTERVAL')          # ms/1000
 	meter.send_cmd('TIME_UTC')     
 	time.sleep(1)
 	print('starting measurement')
 	meter.send_cmd('SAMPLING:TRIGGER',2)       #Trigger continuous 
 	time.sleep(0.1)
-	for i in range(20):
+	for i in range(2):
 		meter.send_cmd('CH1:VALUE')
-		#time.sleep(.3)
 		meter.send_cmd('CH2:VALUE')
-		#meter.send_cmd('SAMPLING:TRIGGER',2)   # Trigger once
-		for i in range(1):
+		for i in range(20):
+			rslt = meter.get_new_values()
+			if rslt:
+				print('v1,v2: %s' % rslt)
 			time.sleep(0.5)
-	for i in range(4):
-		time.sleep(4)
 	meter.send_cmd('SAMPLING:TRIGGER',0)
 	time.sleep(5)
 	meter.close()

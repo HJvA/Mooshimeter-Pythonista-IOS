@@ -1,5 +1,6 @@
 import struct
 import datetime
+import logging
 
 def populate_lod(lod, csv_fp, fields=['id','name']):
 	'''
@@ -86,5 +87,19 @@ def num_to_bytes(num):
 			i += 4
 			return r[0]
 			
+def console_logger():
+	# define a Handler which writes INFO messages or higher to the sys.stderr
+	console = logging.StreamHandler()
+	console.setLevel(logging.NOTSET)
+	# set a format which is simpler for console use
+	formatter = logging.Formatter('%(levelname)-8s %(message)s')
+	# tell the handler to use this format
+	console.setFormatter(formatter)
+	# add the handler to the root logger
+	logger = logging.getLogger()
+	logger.handlers = []
+	logger.addHandler(console)
+	return logger
+
 if __name__=="__main__":
 	print('seconds since 1-1-1970 : %s' % int(timedelta_since().total_seconds()))
