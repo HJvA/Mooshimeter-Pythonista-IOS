@@ -1,15 +1,15 @@
-import struct
+#import struct
 import datetime
 import logging
 
 def populate_lod(lod, csv_fp, fields=['id','name']):
-	'''
+	''' get list of dict from csv file
 	'''
 	rdr = csv.DictReader(csv_fp, fields)
 	lod.extend(rdr)
 
 def query_lod(lod, filter=None, sort_keys=None):
-	'''
+	''' get list of dict filtered from lod
 	pprint(query_lod(lod, sort_keys=('Priority', 'Year')))
 	print len(query_lod(lod, lambda r:1997 <= int(r['Year']) <= 2002))
 	print len(query_lod(lod, lambda r:int(r['Year'])==1998 and int(r['Priority']) > 2))
@@ -17,13 +17,13 @@ def query_lod(lod, filter=None, sort_keys=None):
 	if filter is not None:
 		lod = (r for r in lod if filter(r))
 	if sort_keys is not None:
-		lod = sorted(lod, key=lambda r:[r[k] for k in sort_keys])
+		lod = sorted(lod, key=lambda r: [r[k] for k in sort_keys])
 	else:
 		lod = list(lod)
 	return lod
 
 def lookup_lod(lod, **kw):
-	'''
+	''' get first dict from lod with key value
 	pprint(lookup_lod(lod, Row=1))
 	pprint(lookup_lod(lod, Name='Aardvark'))
 	'''
@@ -38,54 +38,9 @@ def lookup_lod(lod, **kw):
 	return None,-1
 
 def timedelta_since(dtStart=datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)):
-	return  datetime.datetime.now(tz=datetime.timezone.utc) -dtStart 
-
-def num_to_bytes(num): 
-	""" not good
-	"""
-	if num is None:
-		return None
-	elif type(num) == float:
-		return struct.unpack("BBBB",struct.pack("f",num))
-	else:
-		rs = bytearray()
-		if type(num) == int:	
-			return struct.pack('>I',num)		
-			for i in range(4):
-				rs.append(num & 0xFF)
-				num >>= 8
-		else:
-			# Is it iterable?  Try it, assuming it's a list of bytes
-			for byte in num:
-				rs.append(byte)
-		return rs
-		
-	def _bytes_to_num(bytes, b=1,t=int,signed=False):
-		# not used
-		i=0
-		if t == int:
-			if b > len(bytes):
-				print('not enough bytes for INT')
-				#raise UnderflowException()
-			r = 0
-			s = 0
-			top_b = 0
-			while b:
-				top_b = bytes[i]
-				r += top_b << s
-				s += 8
-				i += 1
-				b -= 1
-			# Sign extend
-			if signed and top_b & 0x80:
-				r -= 1 << s
-			return r
-		elif t==float:
-			if 4 > len(bytes):
-				print('not enough bytes for FLT')
-			r = struct.unpack("f",struct.pack("BBBB",*bytes[i:i+4]))
-			i += 4
-			return r[0]
+	''' time in s since 1970-1-1 midnight utc
+	'''
+	return  datetime.datetime.now(tz=datetime.timezone.utc) -dtStart
 			
 def console_logger():
 	# define a Handler which writes INFO messages or higher to the sys.stderr
@@ -101,5 +56,5 @@ def console_logger():
 	logger.addHandler(console)
 	return logger
 
-if __name__=="__main__":
+if __name__ == "__main__":
 	print('seconds since 1-1-1970 : %s' % int(timedelta_since().total_seconds()))
