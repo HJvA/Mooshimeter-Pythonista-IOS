@@ -1,0 +1,96 @@
+[
+  {
+    "selected" : false,
+    "frame" : "{{0, 0}, {400, 480}}",
+    "class" : "View",
+    "nodes" : [
+      {
+        "selected" : false,
+        "frame" : "{{17, 91}, {175, 104}}",
+        "class" : "TableView",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "flex" : "W",
+          "data_source_items" : "Voltage DC\nVoltage AC\nCurrent DC\nCurrent AC",
+          "data_source_font_size" : 18,
+          "frame" : "{{172, 135}, {200, 200}}",
+          "uuid" : "7CAEAD13-1F24-4C63-BDD8-5C0B7270996E",
+          "data_source_number_of_lines" : 1,
+          "class" : "TableView",
+          "background_color" : "RGBA(1.0, 1.0, 1.0, 1.0)",
+          "data_source_delete_enabled" : true,
+          "name" : "function1",
+          "row_height" : 44
+        }
+      },
+      {
+        "selected" : false,
+        "frame" : "{{244, 91}, {122, 43}}",
+        "class" : "TextField",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "name" : "target1",
+          "flex" : "WTB",
+          "frame" : "{{172, 219}, {200, 32}}",
+          "spellchecking_type" : "default",
+          "class" : "TextField",
+          "uuid" : "DA6C4EF9-24F6-46D5-AFBB-346C6A2B2421",
+          "alignment" : "center",
+          "text" : "1000",
+          "autocorrection_type" : "default",
+          "font_size" : 17,
+          "font_name" : "<System>"
+        }
+      },
+      {
+        "selected" : false,
+        "frame" : "{{17, 59}, {150, 32}}",
+        "class" : "Label",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "name" : "label1",
+          "frame" : "{{197, 219}, {150, 32}}",
+          "uuid" : "D3B5E002-3B94-40DF-8F3A-9E57D647A636",
+          "class" : "Label",
+          "alignment" : "left",
+          "text" : "ch1 function",
+          "font_size" : 18,
+          "font_name" : "<System>"
+        }
+      },
+      {
+        "selected" : false,
+        "frame" : "{{244, 59}, {150, 32}}",
+        "class" : "Label",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "name" : "label2",
+          "frame" : "{{197, 219}, {150, 32}}",
+          "uuid" : "128A4068-0A1E-435B-9EAA-4CC43604F824",
+          "class" : "Label",
+          "alignment" : "left",
+          "text" : "ch1 target",
+          "font_size" : 18,
+          "font_name" : "<System>"
+        }
+      }
+    ],
+    "attributes" : {
+      "flex" : "",
+      "enabled" : true,
+      "tint_color" : "RGBA(0.000000,0.478000,1.000000,1.000000)",
+      "custom_class" : "vwSettings",
+      "border_color" : "RGBA(0.000000,0.000000,0.000000,1.000000)",
+      "background_color" : "RGBA(1.000000,1.000000,1.000000,1.000000)",
+      "name" : ""
+    }
+  }
+]

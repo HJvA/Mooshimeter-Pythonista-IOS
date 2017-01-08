@@ -1,6 +1,7 @@
 #import struct
 import datetime
 import logging
+import os
 
 def populate_lod(lod, csv_fp, fields=['id','name']):
 	''' get list of dict from csv file
@@ -37,24 +38,32 @@ def lookup_lod(lod, **kw):
 			return row,i
 	return None,-1
 
-def timedelta_since(dtStart=datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)):
+def seconds_since_epoch(epoch = datetime.datetime.utcfromtimestamp(0), dtnow=datetime.datetime.utcnow()):
 	''' time in s since 1970-1-1 midnight utc
 	'''
-	return  datetime.datetime.now(tz=datetime.timezone.utc) -dtStart
+	return (dtnow - epoch).total_seconds()
+
+#def timedelta_since(dtStart=datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)):
+#	''' time in s since 1970-1-1 midnight utc
+#	'''
+#	return  datetime.datetime.now(tz=datetime.timezone.utc) -dtStart
 			
-def console_logger():
-	# define a Handler which writes INFO messages or higher to the sys.stderr
-	console = logging.StreamHandler()
-	console.setLevel(logging.NOTSET)
-	# set a format which is simpler for console use
-	formatter = logging.Formatter('%(levelname)-8s %(message)s')
-	# tell the handler to use this format
-	console.setFormatter(formatter)
-	# add the handler to the root logger
+def set_logger(filename=None, format='%(levelname)-6s %(message)s', level=logging.NOTSET):
+	formatter = logging.Formatter(format)
+	if filename is None:
+		hand = logging.StreamHandler()
+	else:
+		hand = logging.FileHandler(filename=filename, mode='w')
+	hand.setLevel(level)
+	hand.setFormatter(formatter)
 	logger = logging.getLogger()
-	logger.handlers = []
-	logger.addHandler(console)
-	return logger
+	[logger.removeHandler(h) for h in logger.handlers]
+	logger.addHandler(hand)
+	
 
 if __name__ == "__main__":
-	print('seconds since 1-1-1970 : %s' % int(timedelta_since().total_seconds()))
+	set_logger()
+	logging.info('hallo wereld')
+	logging.error(os.getcwd())
+	print('seconds since epoch : %s' % seconds_since_epoch())
+	logging.shutdown()

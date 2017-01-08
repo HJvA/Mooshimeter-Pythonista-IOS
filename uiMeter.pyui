@@ -1,0 +1,34 @@
+[
+  {
+    "selected" : false,
+    "frame" : "{{0, 0}, {400, 500}}",
+    "class" : "View",
+    "nodes" : [
+      {
+        "selected" : false,
+        "frame" : "{{0, 0}, {400, 29}}",
+        "class" : "SegmentedControl",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "segments" : "Settings|Results|Graph",
+          "frame" : "{{212, 221}, {120, 29}}",
+          "uuid" : "CE73551E-E943-4E30-BF7C-062B0C20922C",
+          "name" : "selPage",
+          "class" : "SegmentedControl",
+          "flex" : "LR"
+        }
+      }
+    ],
+    "attributes" : {
+      "flex" : "",
+      "enabled" : true,
+      "tint_color" : "RGBA(0.000000,0.478000,1.000000,1.000000)",
+      "custom_class" : "vwMultimeter",
+      "border_color" : "RGBA(0.000000,0.000000,0.000000,1.000000)",
+      "background_color" : "RGBA(1.000000,1.000000,1.000000,1.000000)",
+      "name" : ""
+    }
+  }
+]

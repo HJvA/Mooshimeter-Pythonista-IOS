@@ -198,7 +198,7 @@ def discover_BLE_characteristics(lodBLE):
 		expects lodBLE : a list of dictionaries defining what to be searched
 		returns bleDelegate object
 	"""
-	logging = tls.console_logger()
+	#logging = tls.console_logger()
 	cb.set_verbose(True)
 	cb.reset()
 	Delg = bleDelegate(lodBLE)	
@@ -213,7 +213,7 @@ def discover_BLE_characteristics(lodBLE):
 	
 	
 if __name__=="__main__":
-	logging = tls.console_logger()
+	tls.set_logger()
 	PerfName='Mooshi'
 	SERIN = 0
 	SEROUT = 1

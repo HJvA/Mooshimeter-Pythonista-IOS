@@ -1,0 +1,88 @@
+[
+  {
+    "selected" : false,
+    "frame" : "{{0, 0}, {400, 480}}",
+    "class" : "View",
+    "nodes" : [
+      {
+        "selected" : false,
+        "frame" : "{{6, 67}, {388, 46}}",
+        "class" : "Label",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "flex" : "WTB",
+          "font_size" : 24,
+          "frame" : "{{195, 254}, {150, 32}}",
+          "uuid" : "68CEF16E-FADA-47C7-BBB3-2029AB205870",
+          "class" : "Label",
+          "alignment" : "center",
+          "text" : "meter reading1",
+          "name" : "rsltVal1",
+          "font_name" : "<System>"
+        }
+      },
+      {
+        "selected" : false,
+        "frame" : "{{7.5, 122}, {388, 34}}",
+        "class" : "Slider",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "uuid" : "E08BF952-A60A-4637-920B-D7FC51340D01",
+          "frame" : "{{170, 253}, {200, 34}}",
+          "value" : 0.5,
+          "class" : "Slider",
+          "name" : "rsltBar1",
+          "flex" : "WTB"
+        }
+      },
+      {
+        "selected" : false,
+        "frame" : "{{8, 233}, {386, 46}}",
+        "class" : "Label",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "flex" : "WTB",
+          "name" : "rsltVal2",
+          "frame" : "{{195, 254}, {150, 32}}",
+          "uuid" : "68CEF16E-FADA-47C7-BBB3-2029AB205870",
+          "class" : "Label",
+          "alignment" : "center",
+          "text" : "meter reading2",
+          "font_size" : 24,
+          "font_name" : "<System>"
+        }
+      },
+      {
+        "selected" : false,
+        "frame" : "{{7.5, 287}, {388, 34}}",
+        "class" : "Slider",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "uuid" : "E08BF952-A60A-4637-920B-D7FC51340D01",
+          "frame" : "{{170, 253}, {200, 34}}",
+          "value" : 0.5,
+          "class" : "Slider",
+          "name" : "rsltBar2",
+          "flex" : "WTB"
+        }
+      }
+    ],
+    "attributes" : {
+      "flex" : "",
+      "enabled" : true,
+      "tint_color" : "RGBA(0.000000,0.478000,1.000000,1.000000)",
+      "custom_class" : "vwResults",
+      "border_color" : "RGBA(0.000000,0.000000,0.000000,1.000000)",
+      "background_color" : "RGBA(1.000000,1.000000,1.000000,1.000000)",
+      "name" : ""
+    }
+  }
+]
