@@ -1,12 +1,14 @@
 import ui
+import dialogs
 import Mooshimeter
+import multimeter
 import tls
 import time
 
 tls.set_logger()
 
 def update_results(results):
-	print('results %s %s' % (vrslt['rsltVal1'].text,results))
+	#print('results %s %s' % (vrslt['rsltVal1'].text,results))
 	vrslt['rsltVal1'].text ='%4f'  % results[0]
 	vrslt['rsltBar1'].value = (results[0] - 273.15)/100
 	vrslt['rsltVal2'].text ='%4f'  % results[1]
@@ -23,6 +25,12 @@ def show_page(sender):
 		actPage = vrslt
 	vw.add_subview(actPage)
 	actPage.y =60
+
+def func2act(sender):
+	lds =ui.ListDataSource([{'title':tm, 'accessory_type':'detail_button'} for tm in multimeter.mmFunctions.keys()])
+	lds.
+	print([d['title'] for d in lds.items])
+	sel =dialogs.list_dialog('select function',lds.items)
 	
 class vwMultimeter(ui.View):
 	def did_load(self):
@@ -43,7 +51,7 @@ class vwGraph(ui.View):
 meter = Mooshimeter.Mooshimeter('FB55')  # 'FB55' is my meter
 time.sleep(2)
 meter.set_results_callback(update_results)
-meter.trigger(Mooshimeter.trModes['continuous'])
+meter.trigger(multimeter.trModes['continuous'])
 
 actPage=None
 vw = ui.load_view()
