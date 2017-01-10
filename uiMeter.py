@@ -27,8 +27,7 @@ def show_page(sender):
 	actPage.y =60
 
 def func2act(sender):
-	lds =ui.ListDataSource([{'title':tm, 'accessory_type':'detail_button'} for tm in multimeter.mmFunctions.keys()])
-	lds.
+	lds =ui.ListDataSource([{'title':tm, 'accessory_type':'detail_button'} for tm in multimeter.mmFunctions.keys()])	
 	print([d['title'] for d in lds.items])
 	sel =dialogs.list_dialog('select function',lds.items)
 	
