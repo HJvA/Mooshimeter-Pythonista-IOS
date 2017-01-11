@@ -9,6 +9,12 @@ and
  - read Voltage, Current, Resistance, Temperature and other measured values 
    from the multimeter and show them (on the console crudely for the moment)
  - show live channel measurements in pyui screen (pythonista graphical user interface for IOS)
+ 
+Usage
+ - fetch this github repository files in Pythonista 3
+ - have Bluetooth enabled on IOS
+ - have Mooshimeter ready
+ - run file uiMeter.py
 
 Todo
  - graphical user interface (pages : Settings, Results, Graph)
