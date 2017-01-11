@@ -6,27 +6,6 @@
     "nodes" : [
       {
         "selected" : false,
-        "frame" : "{{17, 91}, {175, 104}}",
-        "class" : "TableView",
-        "nodes" : [
-
-        ],
-        "attributes" : {
-          "flex" : "W",
-          "data_source_items" : "Voltage DC\nVoltage AC\nCurrent DC\nCurrent AC",
-          "row_height" : 44,
-          "frame" : "{{172, 135}, {200, 200}}",
-          "uuid" : "7CAEAD13-1F24-4C63-BDD8-5C0B7270996E",
-          "data_source_number_of_lines" : 1,
-          "class" : "TableView",
-          "data_source_font_size" : 18,
-          "background_color" : "RGBA(1.0, 1.0, 1.0, 1.0)",
-          "data_source_delete_enabled" : true,
-          "name" : "function1"
-        }
-      },
-      {
-        "selected" : false,
         "frame" : "{{244, 91}, {122, 43}}",
         "class" : "TextField",
         "nodes" : [
@@ -34,7 +13,7 @@
         ],
         "attributes" : {
           "flex" : "WTB",
-          "font_name" : "<System>",
+          "font_size" : 17,
           "frame" : "{{172, 219}, {200, 32}}",
           "spellchecking_type" : "default",
           "class" : "TextField",
@@ -43,7 +22,7 @@
           "text" : "1000",
           "autocorrection_type" : "default",
           "name" : "target1",
-          "font_size" : 17
+          "font_name" : "<System>"
         }
       },
       {
@@ -54,14 +33,14 @@
 
         ],
         "attributes" : {
-          "font_name" : "<System>",
+          "font_size" : 18,
           "frame" : "{{197, 219}, {150, 32}}",
           "uuid" : "D3B5E002-3B94-40DF-8F3A-9E57D647A636",
           "class" : "Label",
           "alignment" : "left",
           "text" : "ch1 function",
           "name" : "label1",
-          "font_size" : 18
+          "font_name" : "<System>"
         }
       },
       {
@@ -72,18 +51,18 @@
 
         ],
         "attributes" : {
-          "font_name" : "<System>",
+          "font_size" : 18,
           "frame" : "{{197, 219}, {150, 32}}",
           "uuid" : "128A4068-0A1E-435B-9EAA-4CC43604F824",
           "class" : "Label",
           "alignment" : "left",
           "text" : "ch1 target",
           "name" : "label2",
-          "font_size" : 18
+          "font_name" : "<System>"
         }
       },
       {
-        "selected" : true,
+        "selected" : false,
         "frame" : "{{17, 304}, {144, 42}}",
         "class" : "Button",
         "nodes" : [
@@ -92,13 +71,71 @@
         "attributes" : {
           "flex" : "WTB",
           "action" : "func2act",
-          "font_size" : 18,
+          "image_name" : "iob:arrow_down_b_24",
           "frame" : "{{160, 224}, {80, 32}}",
           "title" : "Voltage",
           "uuid" : "D2F146BB-C39D-4810-A9A6-FCEDFECF2687",
           "class" : "Button",
-          "name" : "function2",
-          "image_name" : "iob:arrow_down_b_24"
+          "font_size" : 18,
+          "name" : "function2"
+        }
+      },
+      {
+        "selected" : false,
+        "frame" : "{{17, 99}, {144, 42}}",
+        "class" : "Button",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "flex" : "WTB",
+          "action" : "func1act",
+          "image_name" : "iob:arrow_down_b_24",
+          "frame" : "{{160, 224}, {80, 32}}",
+          "title" : "Voltage",
+          "uuid" : "D2F146BB-C39D-4810-A9A6-FCEDFECF2687",
+          "class" : "Button",
+          "name" : "function1",
+          "font_size" : 18
+        }
+      },
+      {
+        "selected" : false,
+        "frame" : "{{17, 264}, {150, 32}}",
+        "class" : "Label",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "name" : "label1",
+          "frame" : "{{197, 219}, {150, 32}}",
+          "uuid" : "D3B5E002-3B94-40DF-8F3A-9E57D647A636",
+          "class" : "Label",
+          "alignment" : "left",
+          "text" : "ch2 function",
+          "font_size" : 18,
+          "font_name" : "<System>"
+        }
+      },
+      {
+        "selected" : false,
+        "frame" : "{{244, 299}, {122, 47}}",
+        "class" : "TextField",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "flex" : "WTB",
+          "name" : "target1",
+          "frame" : "{{172, 219}, {200, 32}}",
+          "spellchecking_type" : "default",
+          "class" : "TextField",
+          "uuid" : "DA6C4EF9-24F6-46D5-AFBB-346C6A2B2421",
+          "alignment" : "center",
+          "text" : "1000",
+          "autocorrection_type" : "default",
+          "font_size" : 17,
+          "font_name" : "<System>"
         }
       }
     ],

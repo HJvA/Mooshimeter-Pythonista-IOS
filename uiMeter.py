@@ -1,7 +1,7 @@
 import ui
 import dialogs
 import Mooshimeter
-import multimeter
+import multimeter as mm
 import tls
 import time
 
@@ -26,10 +26,28 @@ def show_page(sender):
 	vw.add_subview(actPage)
 	actPage.y =60
 
-def func2act(sender):
-	lds =ui.ListDataSource([{'title':tm, 'accessory_type':'detail_button'} for tm in multimeter.mmFunctions.keys()])	
+def set_function(chan):
+	if chan==2:
+		keys = Mooshimeter.mooshiFunc2.keys()
+	else:
+		keys = Mooshimeter.mooshiFunc1.keys()
+	nms = [n for n in mm.mmFunctions.keys() if mm.mmFunctions[n] in keys]
+	lds =ui.ListDataSource([{'title':tm, 'accessory_type':'detail_button'} for tm in nms]	)
 	print([d['title'] for d in lds.items])
 	sel =dialogs.list_dialog('select function',lds.items)
+	if sel:
+		fnc = mm.mmFunctions[sel['title']]
+		print('mmfunc:%s(%d)' % (sel, fnc))
+		meter.set_function(chan, fnc)
+		return sel['title']
+
+def func1act(sender):
+	sender.title = set_function(1)
+
+def func2act(sender):
+	sender.title = set_function(2)
+		
+		
 	
 class vwMultimeter(ui.View):
 	def did_load(self):
@@ -43,6 +61,10 @@ class vwSettings(ui.View):
 	def did_load(self):
 		pass
 		
+class vwResults(ui.View):
+	def did_load(self):
+		pass
+		
 class vwGraph(ui.View):
 	def did_load(self):
 		pass
@@ -50,7 +72,8 @@ class vwGraph(ui.View):
 meter = Mooshimeter.Mooshimeter('FB55')  # 'FB55' is my meter
 time.sleep(2)
 meter.set_results_callback(update_results)
-meter.trigger(multimeter.trModes['continuous'])
+meter.meter.print_command_tree()
+meter.trigger(mm.trModes['continuous'])
 
 actPage=None
 vw = ui.load_view()

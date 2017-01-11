@@ -228,11 +228,11 @@ class MooshimeterDevice (object):
 		"""
 		if ' ' in cmdstr:
 			cmd = cmdstr.split(' ')[0]
-			Payload=val(cmdstr.split(' ')[1])
+			Payload=float(cmdstr.split(' ')[1])
 		else:
 			cmd = cmdstr
 			Payload=None
-		self.send_command(cmd, Payload)
+		self.send_cmd(cmd, Payload)
 								
 	def send_cmd(self,nodeName,PayLoad=None):
 		""" sends a commmand to the instrument. the cmdstr must be composed as <parent>:<child> 
@@ -251,10 +251,8 @@ class MooshimeterDevice (object):
 				cmd = bytearray((0,scode))
 				logging.info('requesting node value %s(%d)' % (nodeName,scode))
 			elif type(PayLoad) == bytes:
-				cmd = bytearray((0,scode + 0x80 )) + PayLoad
+				cmd = bytearray((0,scode + 0x80 )) + PayLoad				
 			elif ntype >= dtCHOOSER:
-				if ntype==dtSTR:
-					pass
 				bytesValue = self.var_to_bytes(PayLoad,ntype)
 				cmd = bytearray((0,scode + 0x80 )) + bytesValue[-nbytes:]
 				sval = ''.join('{:02x}'.format(x) for x in bytesValue[-nbytes:])
@@ -270,6 +268,8 @@ class MooshimeterDevice (object):
 				ntype=dtS32
 			elif type(var)==string:
 				ntype=dtSTR
+		if type(var) == float and ntype != dtFLT:
+			var=int(var)
 		return struct.pack(dtTypes[ntype][3],var)
 		
 	def bytes_to_var(self,bytes,ntype=dtFLT):
