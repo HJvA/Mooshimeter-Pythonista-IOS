@@ -42,28 +42,29 @@ def seconds_since_epoch(epoch = datetime.datetime.utcfromtimestamp(0), dtnow=dat
 	''' time in s since 1970-1-1 midnight utc
 	'''
 	return (dtnow - epoch).total_seconds()
-
-#def timedelta_since(dtStart=datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)):
-#	''' time in s since 1970-1-1 midnight utc
-#	'''
-#	return  datetime.datetime.now(tz=datetime.timezone.utc) -dtStart
 			
 def set_logger(filename=None, format='%(levelname)-6s %(message)s', level=logging.NOTSET):
 	formatter = logging.Formatter(format)
+	'''
+	'''
 	if filename is None:
-		hand = logging.StreamHandler()
+		hand = logging.StreamHandler() # console
 	else:
 		hand = logging.FileHandler(filename=filename, mode='w')
 	hand.setLevel(level)
 	hand.setFormatter(formatter)
 	logger = logging.getLogger()
-	[logger.removeHandler(h) for h in logger.handlers]
+	[logger.removeHandler(h) for h in logger.handlers[::-1]]
 	logger.addHandler(hand)
+	return hand
 	
 
 if __name__ == "__main__":
-	set_logger()
+	#set_logger(level=logging.INFO)
+	logging.basicConfig(level=logging.NOTSET)
+	print('lev %s' % logging.getLogger().handlers[0].level)
 	logging.info('hallo wereld')
-	logging.error(os.getcwd())
+	logging.warning(os.getcwd())
+	logging.error(os.getlogin())
 	print('seconds since epoch : %s' % seconds_since_epoch())
 	logging.shutdown()

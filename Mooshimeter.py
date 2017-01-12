@@ -13,26 +13,24 @@ logSTATE = {
 	5:"END OF FILE" }
 
 mooshiFunc1 ={ 
-	mm.VOLTAGE_DC:'CH1:MAPPING 2|SHARED 0|ANALYSIS 0', # max 1.2V
-	mm.VOLTAGE_AC:'CH1:MAPPING 2|SHARED 0|ANALYSIS 1', # max 1.2V
-	mm.CURRENT_DC:'CH1:MAPPING 0|CH1:ANALYSIS 0',
-	mm.CURRENT_AC:'CH1:MAPPING 0|CH1:ANALYSIS 1',
-	mm.RESISTANCE:'CH1:MAPPING 2|SHARED 1|CH1:ANALYSIS 0',
-	mm.VOLT_DIODE:'CH1:MAPPING 2|SHARED 2|CH1:ANALYSIS 0',
-	mm.TEMP_INTERN  :'CH1:MAPPING 1|CH1:ANALYSIS 0',
-	mm.TEMP_PT100:'CH1:MAPPING 2|SHARED 1|CH1:ANALYSIS 0'
+	mm.VOLTAGE_DC:('CH1:MAPPING 2|SHARED 0|CH1:ANALYSIS 0',(0.1,0.3,1.2)), 
+	mm.VOLTAGE_AC:('CH1:MAPPING 2|SHARED 0|CH1:ANALYSIS 1',(0.1,0.3,1.2)), 
+	mm.CURRENT_DC:('CH1:MAPPING 0|CH1:ANALYSIS 0',         (10)),
+	mm.CURRENT_AC:('CH1:MAPPING 0|CH1:ANALYSIS 1',         (10)),
+	mm.RESISTANCE:('CH1:MAPPING 2|SHARED 1|CH1:ANALYSIS 0',(1e3,1e4,1e5,1e6,1e7)),
+	mm.VOLT_DIODE:('CH1:MAPPING 2|SHARED 2|CH1:ANALYSIS 0',(1.2)),
+	mm.TEMP_INTERN:('CH1:MAPPING 1|CH1:ANALYSIS 0',        (350)),
+	mm.TEMP_PT100:('CH1:MAPPING 2|SHARED 1|CH1:ANALYSIS 0',())
 	}
 	
 mooshiFunc2 ={
-	mm.VOLTAGE_DC:'CH2:MAPPING 0|CH2:ANALYSIS 0',
-	mm.VOLTAGE_AC:'CH2:MAPPING 0|CH2:ANALYSIS 1',
-	mm.RESISTANCE:'CH2:MAPPING 2|SHARED 1|CH2:ANALYSIS 0',
-	mm.VOLT_DIODE:'CH2:MAPPING 2|SHARED 2|CH2:ANALYSIS 0',
-	mm.TEMP_INTERN  :'CH2:MAPPING 1|CH2:ANALYSIS 0',
-	mm.TEMP_PT100:'CH2:MAPPING 2|SHARED 1|CH2:ANALYSIS 0'
+	mm.VOLTAGE_DC:('CH2:MAPPING 0|CH2:ANALYSIS 0',(60,600)),
+	mm.VOLTAGE_AC:('CH2:MAPPING 0|CH2:ANALYSIS 1',(60,600)),
+	mm.RESISTANCE:('CH2:MAPPING 2|SHARED 1|CH2:ANALYSIS 0',(1e3,1e4,1e5,1e6,1e7)),
+	mm.VOLT_DIODE:('CH2:MAPPING 2|SHARED 2|CH2:ANALYSIS 0',(1.2)),
+	mm.TEMP_INTERN:('CH2:MAPPING 1|CH2:ANALYSIS 0',(350)),
+	mm.TEMP_PT100:('CH2:MAPPING 2|SHARED 1|CH2:ANALYSIS 0',())
 	}
-	
-
 
 
 class Mooshimeter (mm.Multimeter):
@@ -44,18 +42,18 @@ class Mooshimeter (mm.Multimeter):
 		""" search for mooshimeter devices with periph_uid in their peripheral UUID code
 			gets command tree from the instrument 
 		"""
-		self.ch1ch2_callback=None
+		self._ch1ch2_callback=None
 		self.meter = MooshimeterDevice.MooshimeterDevice(periph_uid)
 		
 	def _results_callback(self, sval, scode):
 		results = self.meter.get_values()
-		if self.ch1ch2_callback is not None:
-			self.ch1ch2_callback(results)	
+		if self._ch1ch2_callback is not None:
+			self._ch1ch2_callback(results)	
 		
 	def set_results_callback(self, cb):
 		self.meter.set_results_callback(self.meter.ch1Val_scode, self._results_callback)
 		self.meter.set_results_callback(self.meter.ch2Val_scode, self._results_callback)
-		self.ch1ch2_callback = cb
+		self._ch1ch2_callback = cb
 				
 	def set_function(self, chan=1, mmFunction=None, target=float('nan')):
 		if chan==2:
@@ -63,9 +61,16 @@ class Mooshimeter (mm.Multimeter):
 		else:
 			fnc = mooshiFunc1
 		if mmFunction is not None:
-			cmd = fnc[mmFunction].split('|')
-			for c in cmd:
-				self.meter.send_cmd_string(c)
+			cmds = fnc[mmFunction][0].split('|')
+			for cmd in cmds:
+				self.meter.send_cmd_string(cmd)
+			if target==target: # not isnan
+				rng=-1
+				for trg in fnc[mmFunction][1]:
+					rng+=1
+					if float(target)<trg:
+						self.meter.send_cmd('CH%d:RANGE_I' % chan, rng)
+						break
 		
 	
 	def trigger(self, trMode=1):
@@ -79,7 +84,7 @@ class Mooshimeter (mm.Multimeter):
 			
 		
 if __name__ == "__main__":
-	tls.set_logger()
+	#tls.set_logger()
 	meter = Mooshimeter('FB55')       # ('FB55') is my meter (can be omitted for yours)
 	time.sleep(2)
 	meter.set_function(1, mm.RESISTANCE, 100)

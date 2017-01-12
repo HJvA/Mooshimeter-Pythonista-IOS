@@ -5,7 +5,7 @@ import multimeter as mm
 import tls
 import time
 
-tls.set_logger()
+print(tls.set_logger())
 
 def update_results(results):
 	#print('results %s %s' % (vrslt['rsltVal1'].text,results))
