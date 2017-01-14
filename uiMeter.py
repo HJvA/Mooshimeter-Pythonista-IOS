@@ -1,3 +1,4 @@
+""" main user entry point for mooshimeter bluetooth multimeter """
 import ui
 import dialogs
 import Mooshimeter
@@ -8,11 +9,10 @@ import time
 print(tls.set_logger())
 
 def update_results(results):
-	#print('results %s %s' % (vrslt['rsltVal1'].text,results))
 	vrslt['rsltVal1'].text ='%4f'  % results[0]
-	vrslt['rsltBar1'].value = (results[0] - 273.15)/100
+	vrslt['rsltBar1'].value = results[0]/meter.ch_targets[0]  #  (results[0] - 273.15)/100
 	vrslt['rsltVal2'].text ='%4f'  % results[1]
-	vrslt['rsltBar2'].value = results[1]/200
+	vrslt['rsltBar2'].value = results[1]/meter.ch_targets[1]
 	
 def show_page(sender):
 	print('page %s' % sender.selected_index)
@@ -21,6 +21,9 @@ def show_page(sender):
 		vw.remove_subview(actPage)
 	if sender.selected_index == 0:
 		actPage = vset
+		fnc1=meter.get_mmFunction(1)
+		vset['function1'].title = mm.mmFunctions[fnc1]
+		vset['function2'].title = mm.mmFunctions[meter.get_mmFunction(2)]
 	elif sender.selected_index == 1:
 		actPage = vrslt
 	vw.add_subview(actPage)
@@ -31,12 +34,12 @@ def set_function(chan):
 		keys = Mooshimeter.mooshiFunc2.keys()
 	else:
 		keys = Mooshimeter.mooshiFunc1.keys()
-	nms = [n for n in mm.mmFunctions.keys() if mm.mmFunctions[n] in keys]
-	lds =ui.ListDataSource([{'title':tm, 'accessory_type':'detail_button'} for tm in nms]	)
+	nms = [mm.mmFunctions[k] for k in mm.mmFunctions.keys() if k in keys]
+	lds =ui.ListDataSource([{'title':tm} for tm in nms]	)
 	print([d['title'] for d in lds.items])
 	sel =dialogs.list_dialog('select function',lds.items)
 	if sel:
-		fnc = mm.mmFunctions[sel['title']]
+		fnc = mm.mmFunction(sel['title'])
 		print('mmfunc:%s(%d)' % (sel, fnc))
 		meter.set_function(chan, fnc)
 		return sel['title']
@@ -45,9 +48,7 @@ def func1act(sender):
 	sender.title = set_function(1)
 
 def func2act(sender):
-	sender.title = set_function(2)
-		
-		
+	sender.title = set_function(2)		
 	
 class vwMultimeter(ui.View):
 	def did_load(self):
@@ -69,7 +70,7 @@ class vwGraph(ui.View):
 	def did_load(self):
 		pass
 				
-meter = Mooshimeter.Mooshimeter('FB55')  # 'FB55' is my meter
+meter = Mooshimeter.Mooshimeter()  # 'FB55' is my meter
 time.sleep(2)
 meter.set_results_callback(update_results)
 meter.meter.print_command_tree()

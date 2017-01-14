@@ -1,3 +1,4 @@
+""" top level multimeter abstraction to mooshimeter """
 import MooshimeterDevice
 import multimeter as mm
 import logging
@@ -35,7 +36,6 @@ mooshiFunc2 ={
 
 class Mooshimeter (mm.Multimeter):
 	""" interface to the mooshimeter multimeter using bluetooth on pythonista
-	having 
 	"""
 		
 	def __init__(self, periph_uid=None):
@@ -43,7 +43,9 @@ class Mooshimeter (mm.Multimeter):
 			gets command tree from the instrument 
 		"""
 		self._ch1ch2_callback=None
+		self.ch_targets=[1.0,1.0]
 		self.meter = MooshimeterDevice.MooshimeterDevice(periph_uid)
+		self.kalive = self.keep_alive()
 		
 	def _results_callback(self, sval, scode):
 		results = self.meter.get_values()
@@ -64,14 +66,48 @@ class Mooshimeter (mm.Multimeter):
 			cmds = fnc[mmFunction][0].split('|')
 			for cmd in cmds:
 				self.meter.send_cmd_string(cmd)
+				time.sleep(0.2)
 			if target==target: # not isnan
 				rng=-1
 				for trg in fnc[mmFunction][1]:
 					rng+=1
-					if float(target)<trg:
+					if float(target)<trg: # find closest range for target
+						self.ch_targets[chan-1] = float(target)
 						self.meter.send_cmd('CH%d:RANGE_I' % chan, rng)
 						break
-		
+						
+	def get_mmFunction(self,chan=1):
+		isDC = self.meter.get_node_value('CH%d:ANALYSIS' % chan) == 0
+		fnc = self.meter.get_node_value('CH%d:MAPPING' % chan)
+		if fnc==2:
+			shared = self.meter.get_node_value('SHARED')
+			if shared==0:
+				if isDC:
+					return mm.VOLTAGE_DC
+				else:
+					return mm.VOLTAGE_AC
+			elif shared==1:
+				return mm.RESISTANCE
+			elif shared==2:
+				return mm.VOLT_DIODE
+			else:
+				logging.error('unknown shared:%d' % shared)
+		elif fnc==1:
+			return mm.TEMP_INTERN
+		elif fnc==0:
+			if chan==1:
+				if isDC:
+					return mm.CURRENT_DC
+				else:
+					return mm.CURRENT_AC
+			elif chan==2:
+				if isDC:
+					return mm.VOLTAGE_DC
+				else:
+					return mm.VOLTAGE_AC
+		else:
+			logging.error('unknown mmFunc;%d for chan:%d DC:%d' % (fnc,chan,isDC))
+			
 	
 	def trigger(self, trMode=1):
 		self.meter.send_cmd('SAMPLING:TRIGGER', trMode)
@@ -79,19 +115,24 @@ class Mooshimeter (mm.Multimeter):
 	def get_value(self, chan=1):
 		return self.meter.get_values()[chan-1]
 		
+	def keep_alive(self, t_interval=8.0):
+		return tls.RepeatedTimer(t_interval, self.meter.send_cmd, 'TIME_UTC')
+		
 	def close(self):
+		self.kalive.stop()
 		self.meter.close()
 			
 		
 if __name__ == "__main__":
-	#tls.set_logger()
+	tls.set_logger()
 	meter = Mooshimeter('FB55')       # ('FB55') is my meter (can be omitted for yours)
 	time.sleep(2)
 	meter.set_function(1, mm.RESISTANCE, 100)
 	meter.set_function(2, mm.TEMP_INTERN)
+	print('fnc: %s,%s' % (mm.mmFunctions[meter.get_mmFunction(1)],mm.mmFunctions[meter.get_mmFunction(2)]))
 	meter.trigger(mm.trModes['continuous'])
 	
-	for i in range(10):
+	for i in range(40):
 		print('v1:%f v2:%f' % (meter.get_value(1),meter.get_value(2)))
 		time.sleep(1)
 		

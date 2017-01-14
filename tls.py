@@ -1,9 +1,12 @@
-#import struct
+""" small general purpose helpers """
+
 import datetime
+import time
 import logging
 import os
+import threading
 
-def populate_lod(lod, csv_fp, fields=['id','name']):
+def load_lod(lod, csv_fp, fields=['id','name']):
 	''' get list of dict from csv file
 	'''
 	rdr = csv.DictReader(csv_fp, fields)
@@ -38,15 +41,44 @@ def lookup_lod(lod, **kw):
 			return row,i
 	return None,-1
 
-def seconds_since_epoch(epoch = datetime.datetime.utcfromtimestamp(0), dtnow=datetime.datetime.utcnow()):
+def seconds_since_epoch(epoch = datetime.datetime.utcfromtimestamp(0), utcnow=datetime.datetime.utcnow()):
 	''' time in s since 1970-1-1 midnight utc
 	'''
-	return (dtnow - epoch).total_seconds()
-			
+	return (utcnow - epoch).total_seconds()
+
+
+class RepeatedTimer(object):
+	def __init__(self, interval, function, *args, **kwargs):
+		logging.info('setting up interval timer to run %s every %f seconds' % (function,interval))
+		self._timer     = None
+		self.interval   = interval
+		self.function   = function
+		self.args       = args
+		self.kwargs     = kwargs
+		self.is_running = False
+		self.start()
+
+	def _run(self):
+		self.is_running = False
+		self.start()
+		self.function(*self.args, **self.kwargs)
+
+	def start(self):
+		if not self.is_running:
+			self._timer = threading.Timer(self.interval, self._run)
+			self._timer.start()
+			self.is_running = True
+
+	def stop(self):
+		self._timer.cancel()
+		self._timer.join() # hold main tread till realy finished
+		self.is_running = False	
+
+												
 def set_logger(filename=None, format='%(levelname)-6s %(message)s', level=logging.NOTSET):
+	'''
+	'''
 	formatter = logging.Formatter(format)
-	'''
-	'''
 	if filename is None:
 		hand = logging.StreamHandler() # console
 	else:
@@ -54,6 +86,7 @@ def set_logger(filename=None, format='%(levelname)-6s %(message)s', level=loggin
 	hand.setLevel(level)
 	hand.setFormatter(formatter)
 	logger = logging.getLogger()
+	logger.setLevel(level)
 	[logger.removeHandler(h) for h in logger.handlers[::-1]]
 	logger.addHandler(hand)
 	return hand
@@ -61,9 +94,13 @@ def set_logger(filename=None, format='%(levelname)-6s %(message)s', level=loggin
 
 if __name__ == "__main__":
 	#set_logger(level=logging.INFO)
-	logging.basicConfig(level=logging.NOTSET)
-	print('lev %s' % logging.getLogger().handlers[0].level)
+	logging.basicConfig(level=logging.DEBUG, format='%(levelname)s - %(message)s')
+	logger = logging.getLogger()
+	print('hand %d lev %s' % (len(logger.handlers), logger.handlers[0].flush()))
+	#logger.handlers[0].setLevel(logging.DEBUG)
+	logger.setLevel(logging.DEBUG)
 	logging.info('hallo wereld')
+	logger.debug('debugging')
 	logging.warning(os.getcwd())
 	logging.error(os.getlogin())
 	print('seconds since epoch : %s' % seconds_since_epoch())

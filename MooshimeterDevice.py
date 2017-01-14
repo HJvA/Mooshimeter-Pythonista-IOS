@@ -1,3 +1,4 @@
+""" low level mooshimeter class """
 import cbBLE
 import tls
 import time
@@ -61,7 +62,7 @@ class MooshimeterDevice (object):
 		self.cbDelg.setup_response(SEROUT,self._receive_node_callback)
 		self.cbDelg.write_characteristic(SERIN, bytes([0x00,0x01])) # request command tree
 		self.aggregate = bytearray()
-		self.seq_n =None
+		self.seq_n = None
 		self.cmd_tree = []
 		self.snode_vals ={}
 		self.snode_callbacks={}
@@ -221,6 +222,16 @@ class MooshimeterDevice (object):
 				i += self.print_command_tree(i,lev+1)
 		return i-idx
 					
+	def get_node_value(self, nodeName):
+		rec = self._lookup_node(nodeName)
+		scode = rec['scode']
+		if scode in self.snode_vals.keys():
+			if self.snode_vals[scode] is not None:
+				return self.snode_vals[scode]
+		self.send_cmd(nodeName)
+		time.sleep(1)
+		return self.snode_vals[scode]
+		
 	def send_cmd_string(self,cmdstr):
 		""" sends a commmand to the instrument. the cmdstr must be composed as <parent>:<child> 
 			where parent and child must be pairs in the command tree
@@ -256,6 +267,7 @@ class MooshimeterDevice (object):
 				bytesValue = self.var_to_bytes(PayLoad,ntype)
 				cmd = bytearray((0,scode + 0x80 )) + bytesValue[-nbytes:]
 				sval = ''.join('{:02x}'.format(x) for x in bytesValue[-nbytes:])
+				self.snode_vals[scode] = PayLoad
 				logging.info('send payload %s to %s(%d) dt:%s' % (sval,nodeName,scode,dtType))
 			self.cbDelg.write_characteristic(SERIN, bytes(cmd))		
 			time.sleep(0.1)
@@ -316,13 +328,13 @@ if __name__ == "__main__":
 	meter.send_cmd('LOG:INTERVAL')          # ms/1000
 	
 	#meter.send_cmd('SAMPLING:DEPTH', 2)
-	meter.send_cmd('CH2:RANGE_I')           # CH2 resitance 1000 range
-	meter.send_cmd('CH2:MAPPING')           # get CH2 mapping
-	meter.send_cmd('CH2:OFFSET')            # GET OFFSET ?
-	meter.send_cmd('ADMIN:DIAGNOSTIC')
-	meter.send_cmd('CH2:BUF_BPS')           # bytes per sample
-	meter.send_cmd('CH2:BUF_LSB2NATIVE')    # 
-	meter.send_cmd('TIME_UTC')
+	meter.get_node_value('CH2:RANGE_I')           # CH2 resitance 1000 range
+	meter.get_node_value('CH2:MAPPING')           # get CH2 mapping
+	meter.get_node_value('CH2:OFFSET')            # GET OFFSET ?
+	meter.get_node_value('ADMIN:DIAGNOSTIC')
+	meter.get_node_value('CH2:BUF_BPS')           # bytes per sample
+	meter.get_node_value('CH2:BUF_LSB2NATIVE')    # 
+	meter.get_node_value('TIME_UTC')
 	time.sleep(1)                           # wait for command callbacks filling snode values
 	meter.print_command_tree()
 	

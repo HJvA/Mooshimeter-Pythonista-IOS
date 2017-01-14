@@ -12,17 +12,17 @@
 
         ],
         "attributes" : {
-          "flex" : "WTB",
+          "flex" : "WLTB",
           "font_name" : "<System>",
           "frame" : "{{172, 219}, {200, 32}}",
-          "spellchecking_type" : "default",
+          "spellchecking_type" : "no",
           "class" : "TextField",
           "uuid" : "DA6C4EF9-24F6-46D5-AFBB-346C6A2B2421",
           "alignment" : "center",
           "text" : "1000",
-          "autocorrection_type" : "default",
-          "font_size" : 17,
-          "name" : "target1"
+          "autocorrection_type" : "no",
+          "name" : "target1",
+          "font_size" : 17
         }
       },
       {
@@ -39,13 +39,13 @@
           "class" : "Label",
           "alignment" : "left",
           "text" : "ch1 function",
-          "font_size" : 18,
-          "name" : "label1"
+          "name" : "label1",
+          "font_size" : 18
         }
       },
       {
         "selected" : false,
-        "frame" : "{{244, 59}, {150, 32}}",
+        "frame" : "{{244, 59}, {122, 32}}",
         "class" : "Label",
         "nodes" : [
 
@@ -57,8 +57,8 @@
           "class" : "Label",
           "alignment" : "left",
           "text" : "ch1 target",
-          "font_size" : 18,
-          "name" : "label2"
+          "name" : "label2",
+          "font_size" : 18
         }
       },
       {
@@ -71,12 +71,12 @@
         "attributes" : {
           "flex" : "WTB",
           "action" : "func2act",
-          "name" : "function2",
+          "font_size" : 18,
           "frame" : "{{160, 224}, {80, 32}}",
           "title" : "Voltage",
           "uuid" : "D2F146BB-C39D-4810-A9A6-FCEDFECF2687",
           "class" : "Button",
-          "font_size" : 18,
+          "name" : "function2",
           "image_name" : "iob:arrow_down_b_24"
         }
       },
@@ -90,12 +90,12 @@
         "attributes" : {
           "flex" : "WTB",
           "action" : "func1act",
-          "font_size" : 18,
+          "name" : "function1",
           "frame" : "{{160, 224}, {80, 32}}",
           "title" : "Voltage",
           "uuid" : "D2F146BB-C39D-4810-A9A6-FCEDFECF2687",
           "class" : "Button",
-          "name" : "function1",
+          "font_size" : 18,
           "image_name" : "iob:arrow_down_b_24"
         }
       },
@@ -113,8 +113,8 @@
           "class" : "Label",
           "alignment" : "left",
           "text" : "ch2 function",
-          "name" : "label1",
-          "font_size" : 18
+          "font_size" : 18,
+          "name" : "label1"
         }
       },
       {
@@ -125,17 +125,35 @@
 
         ],
         "attributes" : {
-          "flex" : "WTB",
+          "flex" : "WLTB",
           "font_name" : "<System>",
           "frame" : "{{172, 219}, {200, 32}}",
-          "spellchecking_type" : "default",
+          "spellchecking_type" : "no",
           "class" : "TextField",
           "uuid" : "DA6C4EF9-24F6-46D5-AFBB-346C6A2B2421",
           "alignment" : "center",
           "text" : "1000",
-          "autocorrection_type" : "default",
-          "name" : "target1",
-          "font_size" : 17
+          "autocorrection_type" : "no",
+          "font_size" : 17,
+          "name" : "target2"
+        }
+      },
+      {
+        "selected" : false,
+        "frame" : "{{244, 270}, {122, 26}}",
+        "class" : "Label",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "font_name" : "<System>",
+          "frame" : "{{197, 219}, {150, 32}}",
+          "uuid" : "128A4068-0A1E-435B-9EAA-4CC43604F824",
+          "class" : "Label",
+          "alignment" : "left",
+          "text" : "ch2 target",
+          "font_size" : 18,
+          "name" : "label2"
         }
       }
     ],

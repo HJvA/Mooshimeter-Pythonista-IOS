@@ -13,30 +13,35 @@
         ],
         "attributes" : {
           "flex" : "WTB",
-          "font_size" : 24,
+          "font_name" : "<System>",
           "frame" : "{{195, 254}, {150, 32}}",
           "uuid" : "68CEF16E-FADA-47C7-BBB3-2029AB205870",
           "class" : "Label",
           "alignment" : "center",
           "text" : "meter reading1",
-          "name" : "rsltVal1",
-          "font_name" : "<System>"
+          "font_size" : 24,
+          "name" : "rsltVal1"
         }
       },
       {
         "selected" : false,
-        "frame" : "{{7.5, 122}, {388, 34}}",
+        "frame" : "{{7.5, 121}, {388, 34}}",
         "class" : "Slider",
         "nodes" : [
 
         ],
         "attributes" : {
-          "uuid" : "E08BF952-A60A-4637-920B-D7FC51340D01",
+          "flex" : "WTB",
+          "border_width" : 1,
+          "continuous" : false,
           "frame" : "{{170, 253}, {200, 34}}",
-          "value" : 0.5,
+          "tint_color" : "RGBA(0.770833,0.312500,1.000000,1.000000)",
           "class" : "Slider",
-          "name" : "rsltBar1",
-          "flex" : "WTB"
+          "uuid" : "E08BF952-A60A-4637-920B-D7FC51340D01",
+          "value" : 0.5,
+          "corner_radius" : 8,
+          "background_color" : "RGBA(1.000000,1.000000,1.000000,1.000000)",
+          "name" : "rsltBar1"
         }
       },
       {
@@ -48,14 +53,14 @@
         ],
         "attributes" : {
           "flex" : "WTB",
-          "name" : "rsltVal2",
+          "font_name" : "<System>",
           "frame" : "{{195, 254}, {150, 32}}",
           "uuid" : "68CEF16E-FADA-47C7-BBB3-2029AB205870",
           "class" : "Label",
           "alignment" : "center",
           "text" : "meter reading2",
-          "font_size" : 24,
-          "font_name" : "<System>"
+          "name" : "rsltVal2",
+          "font_size" : 24
         }
       },
       {
@@ -66,12 +71,14 @@
 
         ],
         "attributes" : {
-          "uuid" : "E08BF952-A60A-4637-920B-D7FC51340D01",
+          "flex" : "WTB",
+          "border_width" : 1,
           "frame" : "{{170, 253}, {200, 34}}",
-          "value" : 0.5,
           "class" : "Slider",
-          "name" : "rsltBar2",
-          "flex" : "WTB"
+          "uuid" : "E08BF952-A60A-4637-920B-D7FC51340D01",
+          "value" : 0.5,
+          "corner_radius" : 8,
+          "name" : "rsltBar2"
         }
       }
     ],

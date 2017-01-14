@@ -1,4 +1,6 @@
 """ interface to pythonista version cb of 'CoreBluetooth'
+		discovers specific devices (bluetooth peripherals) and their characteristics
+		reads/writes from/to characteristics
 """
 import cb
 import tls
@@ -19,9 +21,9 @@ cbPropMsg = [
 	(cb.CH_PROP_WRITE_WITHOUT_RESPONSE,'Write no response')
 	]
 
-# dict keys for perepheral scanning
+# dict characteristic keys for perepheral scanning
 chPERF =0
-chID =1
+chID   =1
 chPUID =2
 chCUID =3
 
@@ -31,10 +33,14 @@ def MaskedPropMsg(msgDict,bitmask):
 
 				
 class bleDelegate (object):
-	"""
+	""" having prescibed interface for cb module
 	"""
 	def __init__(self,lodBLE):
-		"""
+		""" 
+		args
+		lodBLE : list of dicts describing peripherals and characteristics to be found
+			[{ chPERF:part of PeripheralName, chID:just an identifying number, 
+			   chPUID:part of peripheral uuid, chCUID:part of characteristic uuid},...]
 		"""
 		self.peripherals = []
 		self.lodCharist=lodBLE
@@ -217,13 +223,11 @@ if __name__=="__main__":
 	PerfName='Mooshi'
 	SERIN = 0
 	SEROUT = 1
-	#lod = [dict(perf=PerfName, id=i, puid=None, cuid=None) for i in (SERIN,SEROUT)]	
 	lod = [{chPERF:PerfName, chID:i, chPUID:None, chCUID:None} for i in (SERIN,SEROUT)]
 	lod[SERIN][chCUID] = 'FFA1' 
 	lod[SEROUT][chCUID] = 'FFA2'
 	cbDelg = discover_BLE_characteristics(lod)
 	cbDelg.write_characteristic(SERIN, bytes([0x00,0x01]))
-	#print(tls.lookup_lod(cbDelg.charFound, chId=1))
 	cbDelg.setup_response(SEROUT)
 	time.sleep(10)
 	cb.reset()

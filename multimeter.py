@@ -1,3 +1,4 @@
+""" generic definitions and base class for all multimeter types """
 trModes = {'stop':0, 'once':1, 'continuous':2}
 
 VOLTAGE_DC=1
@@ -10,11 +11,17 @@ TEMP_INTERN=7
 TEMP_PT100=8
 
 mmFunctions = {
-	'Voltage DC':VOLTAGE_DC, 'Voltage AC':VOLTAGE_AC,
-	'Current DC':CURRENT_DC, 'Current AC':CURRENT_AC,
-	'Resistance':RESISTANCE, 'diode Voltage':VOLT_DIODE, 
-	'internal temperature':TEMP_INTERN, 'temperature Pt100':TEMP_PT100}
+	VOLTAGE_DC:'Voltage DC', VOLTAGE_AC:'Voltage AC',
+	CURRENT_DC:'Current DC', CURRENT_AC:'Current AC',
+	RESISTANCE:'Resistance', VOLT_DIODE:'diode Voltage', 
+	TEMP_INTERN:'internal temperature', TEMP_PT100:'temperature Pt100'}
 
+def mmFunction(mmFunctionName):
+	fnc=[key for key,value in mmFunctions.items() if value==mmFunctionName]
+	return fnc[0]
+	#mmFunctions.values().index(mmFunctionName)
+	return mmFunctions.keys()[idx]
+		
 class Multimeter (object):
 	"""
 	"""
@@ -27,9 +34,12 @@ class Multimeter (object):
 	def set_function(self,chan=1, mmFunction=None, target=float('nan')):
 		pass
 		
+			
 	def trigger(self, trMode):
 		pass
 		
 	def get_value(self, chan):
 		pass
 		
+if __name__ == "__main__":
+	print(mmFunction('Current DC'))
