@@ -2,14 +2,12 @@
 A Python 3.5 application using Bluetooth Low Energy BLE interfacing to the Mooshimeter multimeter on IOS using Pythonista
 
 The application is able to 
- - let user apply settings to the multimeter
- - show meter results on screen
- - read command tree from instrument and show it on the console
-and
- - read Voltage, Current, Resistance, Temperature and other measured values 
-   from the multimeter and show them (on the console crudely for the moment)
- - show live channel measurements in pyui screen (pythonista graphical user interface for IOS)
- 
+ - let user edit and apply settings to the multimeter
+   Including: channel functions and ranges
+ - show meter results on ui screen
+   Including Voltage, Current, Resistance, Temperature and other measured values
+ - read command tree from instrument and show it on the console or in a log file
+
 Usage
  - fetch this github repository files in Pythonista 3
  - have Bluetooth enabled on IOS
@@ -17,11 +15,10 @@ Usage
  - run file uiMeter.py
 
 Todo
- - graphical user interface (pages : Settings, Results, Graph)
- - picklist for meter options
+ - graphical user interface with graphs 
  - Retrieve log files from the instrument (how?)
 
-There are still some issues (who can help?)
+There are still some issues (but not too serious)
  - there is a BADREAD diagnostics message shown
  - some unknown data items in time_utc node
  - crc32 does not calculate correctly reading cmd_tree
