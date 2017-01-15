@@ -1,71 +1,79 @@
 [
   {
     "selected" : false,
-    "frame" : "{{0, 0}, {400, 480}}",
+    "frame" : "{{0, 0}, {400, 440}}",
     "class" : "View",
     "nodes" : [
       {
         "selected" : false,
-        "frame" : "{{6, 67}, {388, 46}}",
+        "frame" : "{{6, 61}, {340, 46}}",
         "class" : "Label",
         "nodes" : [
 
         ],
         "attributes" : {
-          "flex" : "WTB",
-          "font_name" : "<System>",
-          "frame" : "{{195, 254}, {150, 32}}",
           "uuid" : "68CEF16E-FADA-47C7-BBB3-2029AB205870",
-          "class" : "Label",
+          "flex" : "WRTB",
+          "corner_radius" : 8,
+          "background_color" : "RGBA(0.937500,1.000000,0.906250,1.000000)",
+          "frame" : "{{195, 254}, {150, 32}}",
+          "border_color" : "RGBA(0.807843,0.862745,0.780392,1.000000)",
+          "border_width" : 1,
           "alignment" : "center",
           "text" : "meter reading1",
-          "font_size" : 24,
-          "name" : "rsltVal1"
+          "font_name" : "<System>",
+          "class" : "Label",
+          "name" : "rsltVal1",
+          "font_size" : 24
         }
       },
       {
         "selected" : false,
-        "frame" : "{{7.5, 121}, {388, 34}}",
+        "frame" : "{{7.5, 115}, {388, 34}}",
         "class" : "Slider",
         "nodes" : [
 
         ],
         "attributes" : {
-          "flex" : "WTB",
-          "border_width" : 1,
           "continuous" : false,
+          "uuid" : "E08BF952-A60A-4637-920B-D7FC51340D01",
+          "corner_radius" : 8,
           "frame" : "{{170, 253}, {200, 34}}",
           "tint_color" : "RGBA(0.770833,0.312500,1.000000,1.000000)",
-          "class" : "Slider",
-          "uuid" : "E08BF952-A60A-4637-920B-D7FC51340D01",
+          "border_width" : 1,
+          "border_color" : "RGBA(0.807843,0.862745,0.780392,1.000000)",
           "value" : 0.5,
-          "corner_radius" : 8,
-          "background_color" : "RGBA(1.000000,1.000000,1.000000,1.000000)",
-          "name" : "rsltBar1"
+          "class" : "Slider",
+          "name" : "rsltBar1",
+          "flex" : "WTB"
         }
       },
       {
         "selected" : false,
-        "frame" : "{{8, 233}, {386, 46}}",
+        "frame" : "{{6, 211.5}, {340, 46}}",
         "class" : "Label",
         "nodes" : [
 
         ],
         "attributes" : {
-          "flex" : "WTB",
-          "font_name" : "<System>",
-          "frame" : "{{195, 254}, {150, 32}}",
           "uuid" : "68CEF16E-FADA-47C7-BBB3-2029AB205870",
-          "class" : "Label",
+          "flex" : "WRTB",
+          "corner_radius" : 8,
+          "background_color" : "RGBA(0.937500,1.000000,0.906250,1.000000)",
+          "frame" : "{{195, 254}, {150, 32}}",
+          "border_color" : "RGBA(0.724573,0.799528,0.724573,1.000000)",
+          "border_width" : 1,
           "alignment" : "center",
           "text" : "meter reading2",
+          "font_name" : "<System>",
+          "class" : "Label",
           "name" : "rsltVal2",
           "font_size" : 24
         }
       },
       {
         "selected" : false,
-        "frame" : "{{7.5, 287}, {388, 34}}",
+        "frame" : "{{7.5, 261}, {388, 34}}",
         "class" : "Slider",
         "nodes" : [
 
@@ -78,7 +86,48 @@
           "uuid" : "E08BF952-A60A-4637-920B-D7FC51340D01",
           "value" : 0.5,
           "corner_radius" : 8,
+          "border_color" : "RGBA(0.807843,0.862745,0.780392,1.000000)",
           "name" : "rsltBar2"
+        }
+      },
+      {
+        "selected" : false,
+        "frame" : "{{348, 61}, {46, 46}}",
+        "class" : "Label",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "flex" : "LTB",
+          "border_width" : 0,
+          "name" : "unit1",
+          "frame" : "{{195, 254}, {150, 32}}",
+          "uuid" : "68CEF16E-FADA-47C7-BBB3-2029AB205870",
+          "class" : "Label",
+          "alignment" : "center",
+          "text" : "u1",
+          "corner_radius" : 0,
+          "font_size" : 24,
+          "font_name" : "<System>"
+        }
+      },
+      {
+        "selected" : false,
+        "frame" : "{{348, 211.5}, {46, 46}}",
+        "class" : "Label",
+        "nodes" : [
+
+        ],
+        "attributes" : {
+          "flex" : "LTB",
+          "font_size" : 24,
+          "frame" : "{{195, 254}, {150, 32}}",
+          "uuid" : "68CEF16E-FADA-47C7-BBB3-2029AB205870",
+          "class" : "Label",
+          "alignment" : "center",
+          "text" : "u2",
+          "name" : "unit2",
+          "font_name" : "<System>"
         }
       }
     ],

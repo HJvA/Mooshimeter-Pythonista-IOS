@@ -1,19 +1,19 @@
 [
   {
     "selected" : false,
-    "frame" : "{{0, 0}, {400, 480}}",
+    "frame" : "{{0, 0}, {400, 440}}",
     "class" : "View",
     "nodes" : [
       {
         "selected" : false,
-        "frame" : "{{244, 98}, {122, 43}}",
+        "frame" : "{{272, 89.5}, {120, 42}}",
         "class" : "TextField",
         "nodes" : [
 
         ],
         "attributes" : {
-          "flex" : "WLTB",
-          "font_name" : "<System>",
+          "flex" : "LTB",
+          "font_size" : 17,
           "frame" : "{{172, 219}, {200, 32}}",
           "spellchecking_type" : "no",
           "class" : "TextField",
@@ -22,7 +22,7 @@
           "text" : "1000",
           "autocorrection_type" : "no",
           "name" : "target1",
-          "font_size" : 17
+          "font_name" : "<System>"
         }
       },
       {
@@ -33,100 +33,109 @@
 
         ],
         "attributes" : {
-          "font_name" : "<System>",
+          "flex" : "TB",
+          "font_size" : 18,
           "frame" : "{{197, 219}, {150, 32}}",
           "uuid" : "D3B5E002-3B94-40DF-8F3A-9E57D647A636",
           "class" : "Label",
           "alignment" : "left",
           "text" : "ch1 function",
           "name" : "label1",
-          "font_size" : 18
+          "font_name" : "<System>"
         }
       },
       {
         "selected" : false,
-        "frame" : "{{244, 59}, {122, 32}}",
+        "frame" : "{{272, 56}, {120, 32}}",
         "class" : "Label",
         "nodes" : [
 
         ],
         "attributes" : {
-          "font_name" : "<System>",
+          "flex" : "LTB",
+          "font_size" : 18,
           "frame" : "{{197, 219}, {150, 32}}",
           "uuid" : "128A4068-0A1E-435B-9EAA-4CC43604F824",
           "class" : "Label",
           "alignment" : "left",
           "text" : "ch1 target",
           "name" : "label2",
-          "font_size" : 18
+          "font_name" : "<System>"
         }
       },
       {
         "selected" : false,
-        "frame" : "{{17, 304}, {219, 42}}",
+        "frame" : "{{17, 276}, {250, 42}}",
         "class" : "Button",
         "nodes" : [
 
         ],
         "attributes" : {
-          "flex" : "WTB",
-          "action" : "func2act",
-          "font_size" : 18,
-          "frame" : "{{160, 224}, {80, 32}}",
-          "title" : "Voltage",
           "uuid" : "D2F146BB-C39D-4810-A9A6-FCEDFECF2687",
-          "class" : "Button",
+          "font_size" : 18,
           "name" : "function2",
-          "image_name" : "iob:arrow_down_b_24"
+          "corner_radius" : 8,
+          "frame" : "{{160, 224}, {80, 32}}",
+          "border_color" : "RGBA(0.807843,0.862745,0.780392,1.000000)",
+          "border_width" : 1,
+          "title" : "Voltage",
+          "action" : "func2act",
+          "class" : "Button",
+          "image_name" : "iob:arrow_down_b_24",
+          "flex" : "WTB"
         }
       },
       {
         "selected" : false,
-        "frame" : "{{17, 99}, {219, 42}}",
+        "frame" : "{{17, 89.5}, {250, 42}}",
         "class" : "Button",
         "nodes" : [
 
         ],
         "attributes" : {
-          "flex" : "WTB",
-          "action" : "func1act",
-          "name" : "function1",
-          "frame" : "{{160, 224}, {80, 32}}",
-          "title" : "Voltage",
           "uuid" : "D2F146BB-C39D-4810-A9A6-FCEDFECF2687",
-          "class" : "Button",
+          "name" : "function1",
           "font_size" : 18,
-          "image_name" : "iob:arrow_down_b_24"
+          "corner_radius" : 8,
+          "frame" : "{{160, 224}, {80, 32}}",
+          "border_color" : "RGBA(0.807843,0.862745,0.780392,1.000000)",
+          "border_width" : 1,
+          "title" : "Voltage",
+          "action" : "func1act",
+          "class" : "Button",
+          "image_name" : "iob:arrow_down_b_24",
+          "flex" : "WTB"
         }
       },
       {
         "selected" : false,
-        "frame" : "{{17, 264}, {150, 32}}",
+        "frame" : "{{17, 244}, {150, 32}}",
         "class" : "Label",
         "nodes" : [
 
         ],
         "attributes" : {
-          "font_name" : "<System>",
+          "flex" : "TB",
+          "name" : "label1",
           "frame" : "{{197, 219}, {150, 32}}",
           "uuid" : "D3B5E002-3B94-40DF-8F3A-9E57D647A636",
           "class" : "Label",
           "alignment" : "left",
           "text" : "ch2 function",
           "font_size" : 18,
-          "name" : "label1"
+          "font_name" : "<System>"
         }
       },
       {
         "selected" : false,
-        "frame" : "{{244, 304}, {122, 42}}",
+        "frame" : "{{272, 276}, {120, 42}}",
         "class" : "TextField",
         "nodes" : [
 
         ],
         "attributes" : {
-          "flex" : "WLTB",
-          "font_name" : "<System>",
+          "flex" : "LTB",
+          "name" : "target2",
           "frame" : "{{172, 219}, {200, 32}}",
           "spellchecking_type" : "no",
           "class" : "TextField",
@@ -135,25 +144,26 @@
           "text" : "1000",
           "autocorrection_type" : "no",
           "font_size" : 17,
-          "name" : "target2"
+          "font_name" : "<System>"
         }
       },
       {
         "selected" : false,
-        "frame" : "{{244, 270}, {122, 26}}",
+        "frame" : "{{274, 244}, {120, 32}}",
         "class" : "Label",
         "nodes" : [
 
         ],
         "attributes" : {
-          "font_name" : "<System>",
+          "flex" : "LTB",
+          "name" : "label2",
           "frame" : "{{197, 219}, {150, 32}}",
           "uuid" : "128A4068-0A1E-435B-9EAA-4CC43604F824",
           "class" : "Label",
           "alignment" : "left",
           "text" : "ch2 target",
           "font_size" : 18,
-          "name" : "label2"
+          "font_name" : "<System>"
         }
       }
     ],

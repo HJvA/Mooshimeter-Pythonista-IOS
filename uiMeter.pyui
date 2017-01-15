@@ -6,17 +6,17 @@
     "nodes" : [
       {
         "selected" : false,
-        "frame" : "{{0, 0}, {400, 29}}",
+        "frame" : "{{0, 18}, {400, 29}}",
         "class" : "SegmentedControl",
         "nodes" : [
 
         ],
         "attributes" : {
-          "segments" : "Settings|Results|Graph",
+          "name" : "selPage",
           "frame" : "{{212, 221}, {120, 29}}",
           "uuid" : "CE73551E-E943-4E30-BF7C-062B0C20922C",
-          "name" : "selPage",
           "class" : "SegmentedControl",
+          "segments" : "Settings|Results|Graph",
           "flex" : "LR"
         }
       }

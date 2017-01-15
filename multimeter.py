@@ -11,16 +11,14 @@ TEMP_INTERN=7
 TEMP_PT100=8
 
 mmFunctions = {
-	VOLTAGE_DC:'Voltage DC', VOLTAGE_AC:'Voltage AC',
-	CURRENT_DC:'Current DC', CURRENT_AC:'Current AC',
-	RESISTANCE:'Resistance', VOLT_DIODE:'diode Voltage', 
-	TEMP_INTERN:'internal temperature', TEMP_PT100:'temperature Pt100'}
+	VOLTAGE_DC:('Voltage DC','V'), VOLTAGE_AC:('Voltage AC','V'),
+	CURRENT_DC:('Current DC','A'), CURRENT_AC:('Current AC','A'),
+	RESISTANCE:('Resistance','Ω'), VOLT_DIODE:('diode Voltage','V'), 
+	TEMP_INTERN:('internal temperature','K'), TEMP_PT100:('temperature Pt100','°C')}
 
 def mmFunction(mmFunctionName):
-	fnc=[key for key,value in mmFunctions.items() if value==mmFunctionName]
+	fnc=[key for key,value in mmFunctions.items() if value[0]==mmFunctionName]
 	return fnc[0]
-	#mmFunctions.values().index(mmFunctionName)
-	return mmFunctions.keys()[idx]
 		
 class Multimeter (object):
 	"""
@@ -42,4 +40,7 @@ class Multimeter (object):
 		pass
 		
 if __name__ == "__main__":
-	print(mmFunction('Current DC'))
+	fnc=CURRENT_AC
+	fncnm=mmFunctions[fnc][0]
+	fncun=mmFunctions[fnc][1]
+	print('%s (=%d) %s [%s]' % (mmFunction(fncnm),fnc,fncnm,fncun))

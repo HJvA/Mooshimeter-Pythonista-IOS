@@ -16,21 +16,21 @@ logSTATE = {
 mooshiFunc1 ={ 
 	mm.VOLTAGE_DC:('CH1:MAPPING 2|SHARED 0|CH1:ANALYSIS 0',(0.1,0.3,1.2)), 
 	mm.VOLTAGE_AC:('CH1:MAPPING 2|SHARED 0|CH1:ANALYSIS 1',(0.1,0.3,1.2)), 
-	mm.CURRENT_DC:('CH1:MAPPING 0|CH1:ANALYSIS 0',         (10)),
-	mm.CURRENT_AC:('CH1:MAPPING 0|CH1:ANALYSIS 1',         (10)),
+	mm.CURRENT_DC:('CH1:MAPPING 0|CH1:ANALYSIS 0',         (10,)),
+	mm.CURRENT_AC:('CH1:MAPPING 0|CH1:ANALYSIS 1',         (10,)),
 	mm.RESISTANCE:('CH1:MAPPING 2|SHARED 1|CH1:ANALYSIS 0',(1e3,1e4,1e5,1e6,1e7)),
-	mm.VOLT_DIODE:('CH1:MAPPING 2|SHARED 2|CH1:ANALYSIS 0',(1.2)),
-	mm.TEMP_INTERN:('CH1:MAPPING 1|CH1:ANALYSIS 0',        (350)),
-	mm.TEMP_PT100:('CH1:MAPPING 2|SHARED 1|CH1:ANALYSIS 0',())
+	mm.VOLT_DIODE:('CH1:MAPPING 2|SHARED 2|CH1:ANALYSIS 0',(1.2,)),
+	mm.TEMP_INTERN:('CH1:MAPPING 1|CH1:ANALYSIS 0',        (350,)),
+	mm.TEMP_PT100:('CH1:MAPPING 2|SHARED 1|CH1:ANALYSIS 0',(120,))
 	}
 	
 mooshiFunc2 ={
 	mm.VOLTAGE_DC:('CH2:MAPPING 0|CH2:ANALYSIS 0',(60,600)),
 	mm.VOLTAGE_AC:('CH2:MAPPING 0|CH2:ANALYSIS 1',(60,600)),
 	mm.RESISTANCE:('CH2:MAPPING 2|SHARED 1|CH2:ANALYSIS 0',(1e3,1e4,1e5,1e6,1e7)),
-	mm.VOLT_DIODE:('CH2:MAPPING 2|SHARED 2|CH2:ANALYSIS 0',(1.2)),
-	mm.TEMP_INTERN:('CH2:MAPPING 1|CH2:ANALYSIS 0',(350)),
-	mm.TEMP_PT100:('CH2:MAPPING 2|SHARED 1|CH2:ANALYSIS 0',())
+	mm.VOLT_DIODE:('CH2:MAPPING 2|SHARED 2|CH2:ANALYSIS 0',(1.2,)),
+	mm.TEMP_INTERN:('CH2:MAPPING 1|CH2:ANALYSIS 0',(350,)),
+	mm.TEMP_PT100:('CH2:MAPPING 2|SHARED 1|CH2:ANALYSIS 0',(120,))
 	}
 
 
@@ -79,34 +79,42 @@ class Mooshimeter (mm.Multimeter):
 	def get_mmFunction(self,chan=1):
 		isDC = self.meter.get_node_value('CH%d:ANALYSIS' % chan) == 0
 		fnc = self.meter.get_node_value('CH%d:MAPPING' % chan)
+		rng = self.meter.get_node_value('CH%d:RANGE_I' % chan)
+		mmfnc=None
 		if fnc==2:
 			shared = self.meter.get_node_value('SHARED')
 			if shared==0:
 				if isDC:
-					return mm.VOLTAGE_DC
+					mmfnc= mm.VOLTAGE_DC
 				else:
-					return mm.VOLTAGE_AC
+					mmfnc= mm.VOLTAGE_AC
 			elif shared==1:
-				return mm.RESISTANCE
+				mmfnc= mm.RESISTANCE
 			elif shared==2:
-				return mm.VOLT_DIODE
+				mmfnc= mm.VOLT_DIODE
 			else:
 				logging.error('unknown shared:%d' % shared)
 		elif fnc==1:
-			return mm.TEMP_INTERN
+			mmfnc= mm.TEMP_INTERN
 		elif fnc==0:
 			if chan==1:
 				if isDC:
-					return mm.CURRENT_DC
+					mmfnc= mm.CURRENT_DC
 				else:
-					return mm.CURRENT_AC
+					mmfnc= mm.CURRENT_AC
 			elif chan==2:
 				if isDC:
-					return mm.VOLTAGE_DC
+					mmfnc= mm.VOLTAGE_DC
 				else:
-					return mm.VOLTAGE_AC
+					mmfnc= mm.VOLTAGE_AC
 		else:
 			logging.error('unknown mmFunc;%d for chan:%d DC:%d' % (fnc,chan,isDC))
+		if mmfnc is not None:
+			if chan==1:
+				self.ch_targets[0] = mooshiFunc1[mmfnc][1][rng]
+			elif chan==2:
+				self.ch_targets[1] = mooshiFunc2[mmfnc][1][rng]
+		return mmfnc
 			
 	
 	def trigger(self, trMode=1):
