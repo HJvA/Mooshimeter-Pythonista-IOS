@@ -6,22 +6,27 @@ The application is able to
    Including: channel functions and ranges
  - show meter results on ui screen
    Including Voltage, Current, Resistance, Temperature and other measured values
- - read command tree from instrument and show it on the console or in a log file
+ - read command tree from instrument and show it on the console
+ - provide debug communication data in a log file
 
 Usage
  - fetch this github repository files in Pythonista 3
  - have Bluetooth enabled on IOS
- - have Mooshimeter ready
+ - have Mooshimeter ready 
  - run file uiMeter.py
 
 Todo
- - graphical user interface with graphs 
- - Retrieve log files from the instrument (how?)
+ - graphical user interface 
+ - Retrieve log files from the instrument
+ - show depth buffer in a graph
 
-There are still some issues (but not too serious)
+There are still some issues (some not too serious)
  - there is a BADREAD diagnostics message shown
- - some unknown data items in time_utc node
- - crc32 does not calculate correctly reading cmd_tree
+ - some unknown data items in time_utc node when trigger continuous
+ - depth buffer is dumped to time_utc node when analysis=2 but format not yet understood
+ - BUF_LSB2NATIVE is 0.0 when analysis has not been set to 2 before
+ - BUF_BPS has value 8 but should have value 24
+ - CHn:BUF node does not return enough samples according to depth setting
 
 Refered products:
 

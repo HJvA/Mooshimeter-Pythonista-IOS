@@ -220,13 +220,21 @@ def discover_BLE_characteristics(lodBLE):
 	
 if __name__=="__main__":
 	tls.set_logger()
-	PerfName='Mooshi'
-	SERIN = 0
-	SEROUT = 1
-	lod = [{chPERF:PerfName, chID:i, chPUID:None, chCUID:None} for i in (SERIN,SEROUT)]
-	lod[SERIN][chCUID] = 'FFA1' 
-	lod[SEROUT][chCUID] = 'FFA2'
+	
+	if 1:
+		PerfName='Mooshi'
+		SERIN = 0
+		SEROUT = 1
+		lod = [{chPERF:PerfName, chID:i, chPUID:None, chCUID:None} for i in (SERIN,SEROUT)]
+		lod[SERIN][chCUID]  = 'FFA1' 
+		lod[SEROUT][chCUID] = 'FFA2'
+	else:
+		PerfName='Eve Room'
+		lod = [{chPERF:PerfName, chID:i, chPUID:None, chCUID:None} for i in range(8)]
 	cbDelg = discover_BLE_characteristics(lod)
+	
+	for rec in cbDelg.lodCharist:
+		print(rec)
 	cbDelg.write_characteristic(SERIN, bytes([0x00,0x01]))
 	cbDelg.setup_response(SEROUT)
 	time.sleep(10)

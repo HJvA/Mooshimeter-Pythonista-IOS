@@ -6,6 +6,18 @@ import logging
 import os
 import threading
 
+def bytes_to_int(data,endian='>'):
+	"""Convert a bytearray into an integer, considering the first bit sign."""
+	if endian=='<':
+		data=bytearray(data)
+		data.reverse()
+	negative = data[0] & 0x80 > 0
+	if negative:
+		inverted = bytearray(~d % 256 for d in data)
+		return -bytes_to_int(inverted) - 1
+	encoded = ''.join(format(x, '02x') for x in data) 
+	return int(encoded, 16)
+
 def load_lod(lod, csv_fp, fields=['id','name']):
 	''' get list of dict from csv file
 	'''
@@ -104,4 +116,5 @@ if __name__ == "__main__":
 	logging.warning(os.getcwd())
 	logging.error(os.getlogin())
 	print('seconds since epoch : %s' % seconds_since_epoch())
+	print('(0xff,0xff,0x7f) bytes_to_int = %0x' % bytes_to_int((0xff,0xff,0xfe),'<'))
 	logging.shutdown()

@@ -47,7 +47,7 @@ logSTATE = {
 	5:"END OF FILE" }
 
 class MooshimeterDevice (object):
-	""" interface to the mooshimeter multimeter using bluetooth on pythonista
+	""" interface to the mooshimeter as BLE DEVICE using bluetooth on pythonista
 	"""
 		
 	def __init__(self, periph_uid=None):
@@ -94,20 +94,23 @@ class MooshimeterDevice (object):
 				self.snode_vals[self.ch2Val_scode]=float('nan')
 				logging.info('received tree items:%d ch1Val_scode:%d' % (len(self.cmd_tree),self.ch1Val_scode))
 		elif shortcode==5:  # TIME_UTC but may have other results
-			if 5<len(self.aggregate)<23:
-				pass
+			if 5<len(self.aggregate)<23 or 25<len(self.aggregate)<280:
+				pass # more data expected
 			else:
-				self.assign_sval(shortcode, self.bytes_to_var(self.aggregate[1:5], dtU32))
-				logging.info('t utc %d len(%d)' % (self.snode_vals[shortcode],len(self.aggregate)))
+				self.assign_sval(shortcode, self.bytes_to_var(self.aggregate[1:5], dtU32)) # time since epoch
+				logging.info('t utc %d len(%d)' % (self.snode_vals[shortcode],len(self.aggregate)))	
 				if len(self.aggregate) >= 23:
-					#self.newVal=True
+					ln = self.bytes_to_var(self.aggregate[8:9], dtU8)
 					val1 = self.bytes_to_var(self.aggregate[5:9], dtU32)
 					self.assign_sval(self.ch1Val_scode, self.bytes_to_var(self.aggregate[9:13]))
 					val2 = self.bytes_to_var(self.aggregate[13:14], dtU8)
 					self.assign_sval(self.ch2Val_scode, self.bytes_to_var(self.aggregate[14:18]))
 					val3 = self.bytes_to_var(self.aggregate[18:19], dtU8)
-					val4 = self.bytes_to_var(self.aggregate[19:])
-					logging.info(' unknown vals?:(%s)' % [val1,val2,val3,val4])
+					val4 = self.bytes_to_var(self.aggregate[19:23], dtU32)
+					logging.info('unknown utc vals? ln:%d:(%0x, %x, %x, %0x)' % (ln,val1,val2,val3,val4))
+				if len(self.aggregate)>=284:
+					sval = ''.join('{:02x}'.format(x) for x in self.aggregate[23:])
+					logging.info('large utc BUF dump: %s' % sval)
 				self.aggregate = bytearray()
 		else:  # receiving ordinary nodes
 			rec,idx = tls.lookup_lod(self.cmd_tree, scode=shortcode)
@@ -123,9 +126,15 @@ class MooshimeterDevice (object):
 				if len(self.aggregate) >= expected_len:
 					if rec['ntype']==dtSTR:
 						self.assign_sval(shortcode, self.bytes_to_var(self.aggregate[3:], dtSTR))
-					elif rec['ntype']==dtBIN:
-						vals = struct.iter_unpack('f',self.aggregate[6:])
-						logging.error('unknown sc:%d, v:%s' % (shortcode,','.join('{:}'.format(x) for x in vals)))
+					elif rec['ntype']==dtBIN:	# receiving BUF
+						vfact=self.get_node_value(rec['parent']+':BUF_LSB2NATIVE')
+						if vfact==0.0 or vfact is None:
+							logging.error('unknown LSB2NATIVE factor (%s) for %s' % (vfact,rec['parent']))
+							vfact=1.0
+						vlen=len(self.aggregate)-2
+						vals = [tls.bytes_to_int(self.aggregate[i:i+3],'<') * vfact for i in range(3,vlen,3)]
+						#vals = [x.encode('hex') for x in struct.iter_unpack('ccc',self.aggregate[5:])]
+						logging.info('dtBIN(%d), explen=%d, len=%d fact:%f v:%s' % (shortcode,expected_len,vlen,vfact,','.join('{:}'.format(x) for x in vals)))
 					self.aggregate = bytearray() # release memory
 			else:
 				if rec['ntype'] in (dtU8,dtU16,dtU32,dtS8,dtS16,dtS32,dtCHOOSER,dtFLT):
@@ -146,11 +155,12 @@ class MooshimeterDevice (object):
 		"""
 		expected_len = self.aggregate[1] + self.aggregate[2]*255 + 3
 		if len(self.aggregate) >= expected_len:
+			crc32 = binascii.crc32(self.aggregate[3:]) &  0xffffffff # finding correct value here !!!
+			logging.info('crc32 before unzip %04x' % crc32)
 			bytes = zlib.decompress(self.aggregate[3:])
 			self.aggregate = bytearray() # release memory
 			self.seq_n = None
 			self.cmd_tree=[]
-			crc32 = binascii.crc32(bytes) &  0xffffffff # not finding correct value here !!!
 			shortcode = -1
 			i=0
 			while i<len(bytes):
@@ -159,15 +169,16 @@ class MooshimeterDevice (object):
 				name  = bytes[i+2:i+2+nlen].decode('ascii')
 				n_children = bytes[i+2+nlen]
 				i += 3+nlen
-				rec =dict(scode=-1, node=name, nchilds=n_children, ntype=ntype)
+				rec =dict(scode=-1, node=name, nchilds=n_children, ntype=ntype, parent=None)
 				if ntype>1:
 					shortcode += 1
 					rec['scode']=shortcode
 					self.snode_vals[shortcode]=None	
 				self.cmd_tree.append(rec)	
 			logging.info('tree done %d crc:%0x' % (i,crc32))
-			crc32= 0x14795c4a # this one according to intrum
+			#crc32= 0x14795c4a # this one according to instrum
 			self.send_cmd('ADMIN:CRC32',crc32)
+			self._deorphan_tree(0)
 			return True
 		else:
 			return False
@@ -197,11 +208,21 @@ class MooshimeterDevice (object):
 				return None,i
 			i+=1
 		return None,i
-		
-		
-	#def get_nodes(self, scode):
-	#	rec,idx = tls.lookup_lod(self.cmd_tree, scode=shortcode)		
-
+	
+	def _deorphan_tree(self,idx,parent=None):
+		""" fill parents in command tree.
+		"""
+		while idx<len(self.cmd_tree):
+			rec = self.cmd_tree[idx]
+			#print('%s:%s' % (parent,rec['node']))
+			for c in range(rec['nchilds']):
+				idx = self._deorphan_tree(idx+1, rec['node'])
+			if parent is not None:
+				rec['parent'] = parent
+				return idx
+			idx+=1
+		return idx
+				
 	def print_command_tree(self,idx=0,lev=0):
 		""" prints available commands, that have been received from the meter 
 			including parameter type and shortcodes and childs and value to the console
@@ -212,7 +233,7 @@ class MooshimeterDevice (object):
 			i+=1
 			rec = self.cmd_tree[i]
 			nchilds = rec['nchilds']
-			item ='  '*(lev) + rec['node']
+			item ='  '*(lev) + rec['parent']+':'+rec['node']
 			if rec['scode'] in self.snode_vals.keys():
 				val = self.snode_vals[rec['scode']]
 			else:
@@ -233,9 +254,9 @@ class MooshimeterDevice (object):
 		return self.snode_vals[scode]
 		
 	def send_cmd_string(self,cmdstr):
-		""" sends a commmand to the instrument. the cmdstr must be composed as <parent>:<child> 
+		""" sends a commmand to the instrument. the cmdstr must be composed as '<parent>:<child> [<payload>]'
 			where parent and child must be pairs in the command tree
-			Payload can be specified at end separated with space
+			payload can be specified at end separated with space
 		"""
 		if ' ' in cmdstr:
 			cmd = cmdstr.split(' ')[0]
@@ -314,16 +335,16 @@ if __name__ == "__main__":
 	meter.send_cmd('SAMPLING:TRIGGER',0)    # Trigger off	
 	print('utc s %d' % int(tls.seconds_since_epoch()))
 		
-	meter.send_cmd('SAMPLING:RATE',0)       # Rate 125Hz	#
+	meter.send_cmd('SAMPLING:RATE',1)       # Rate 125Hz	#
 	meter.send_cmd('SAMPLING:DEPTH', 3)     # Depth 256
-	meter.send_cmd('CH1:MAPPING',1)         # CH1 select temperature input
+	meter.send_cmd('CH1:MAPPING',0)         # CH1 select temperature input
 	meter.send_cmd('CH1:RANGE_I', 0)        # CH1 350K, 10A range
 	meter.send_cmd('CH1:ANALYSIS', 0)       # mean 
 	#meter.send_command('CH1:MEAN', 0)         # 
-	
+		
 	meter.send_cmd('CH2:MAPPING', 2)        # CH2 select shared input
 	meter.send_cmd('SHARED', 1)             # CH2 select resistance
-	meter.send_cmd('CH2:ANALYSIS', 0)          # mean 
+	meter.send_cmd('CH2:ANALYSIS', 0)       # 0:mean 1:rms 2:buffer
 	meter.send_cmd('LOG:ON', 0)              # logging off
 	meter.send_cmd('LOG:INTERVAL')          # ms/1000
 	
@@ -332,11 +353,7 @@ if __name__ == "__main__":
 	meter.get_node_value('CH2:MAPPING')           # get CH2 mapping
 	meter.get_node_value('CH2:OFFSET')            # GET OFFSET ?
 	meter.get_node_value('ADMIN:DIAGNOSTIC')
-	meter.get_node_value('CH2:BUF_BPS')           # bytes per sample
-	meter.get_node_value('CH2:BUF_LSB2NATIVE')    # 
-	meter.get_node_value('TIME_UTC')
-	time.sleep(1)                           # wait for command callbacks filling snode values
-	meter.print_command_tree()
+	meter.get_node_value('TIME_UTC_MS')
 	
 	def rslt_callback(val, scode):
 		print('v %f' % val)
@@ -348,10 +365,18 @@ if __name__ == "__main__":
 	time.sleep(0.1)
 	meter.send_cmd('CH1:VALUE')
 	meter.send_cmd('CH2:VALUE')
-	for i in range(40):
+	for i in range(20):
 		time.sleep(0.5)
 	meter.send_cmd('SAMPLING:TRIGGER',0)
-	time.sleep(3)
+	meter.get_node_value('CH2:BUF_BPS')           # bytes per sample
+	meter.get_node_value('CH2:BUF_LSB2NATIVE')    # 
+	meter.get_node_value('CH1:BUF')               # get buffer
+	time.sleep(0.3)
+	meter.get_node_value('CH1:BUF_BPS')           # bytes per sample
+	meter.get_node_value('CH1:BUF_LSB2NATIVE')    # 
+	meter.get_node_value('CH2:BUF')               # get buffer
+	time.sleep(3)                                 # wait for command callbacks filling snode values
+	meter.print_command_tree()
 	meter.close()
 	print('bye')
 	logging.shutdown()
