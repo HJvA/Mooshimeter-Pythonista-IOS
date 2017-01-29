@@ -14,6 +14,7 @@ Usage
  - have Bluetooth enabled on IOS
  - have Mooshimeter ready 
  - run file uiMeter.py
+ - to see diagnostic messages see the log file and the console
 
 Todo
  - graphical user interface 
@@ -27,6 +28,7 @@ There are still some issues (some not too serious)
  - BUF_LSB2NATIVE is 0.0 when analysis has not been set to 2 before
  - BUF_BPS has value 8 but should have value 24
  - CHn:BUF node does not return enough samples according to depth setting
+ - internal temperature is not very accurate (can it be calibrated?)
 
 Refered products:
 
