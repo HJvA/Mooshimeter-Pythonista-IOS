@@ -1,9 +1,12 @@
+""" genral purpose tools for drawing to canvas
+    including mapping of coordinate systems
+"""
 from __future__ import division
 import canvas
 import ui
 
 class canvas_context(object):
-	""" maps world coordinates (on ios pixel canvas) to user coordinates
+	""" maps user coordinates to world (e.g. ios pixel canvas) coordinates
 	"""
 	def __init__(self, wrld_frame=None, user_frame=(0.0,0.0, 1.0,1.0)):
 		if wrld_frame is None:
@@ -24,29 +27,34 @@ class canvas_context(object):
 	def get_origin():
 		return self.loca[0],self.loca[1]
 				
-	def xyTrans(self,x,y):
-		xt = self.wrld[0] + (x-self.loca[0]) / (self.loca[2]/self.wrld[2])
-		yt = self.wrld[1] + (y-self.loca[1]) / (self.loca[3]/self.wrld[3])
+	def xyWorld(self,xUser,yUser):
+		xt = self.wrld[0] + (xUser-self.loca[0]) / (self.loca[2]/self.wrld[2])
+		yt = self.wrld[1] + (yUser-self.loca[1]) / (self.loca[3]/self.wrld[3])
 		return xt,yt
 		
-	def whTrans(self,w,h):
+	def whWorld(self,w,h):
 		wt = w/ (self.loca[2]/self.wrld[2])
 		ht = h/ (self.loca[3]/self.wrld[3])
 		return wt,ht
 		
+	def whUser(self,wWorld,hWorld):
+		wt = w* (self.loca[2]/self.wrld[2])
+		ht = h* (self.loca[3]/self.wrld[3])
+		return wt,ht
+		
 	def sub_frame(self, loc_frame):
 		loca = list(loc_frame)
-		loca[0],loca[1] = self.xyTrans(loc_frame[0],loc_frame[1])
-		loca[2],loca[3] = self.whTrans(loc_frame[2],loc_frame[3])
+		loca[0],loca[1] = self.xyWorld(loc_frame[0],loc_frame[1])
+		loca[2],loca[3] = self.whWorld(loc_frame[2],loc_frame[3])
 		return tuple(loca)
 		
 	def draw_rect(self,x,y,width,height):
 		#print('x,y:%f,%f' % (self.xyTrans(x,y)))
 		#print('w,h:%f,%f' % (self.whTrans(width,height)))
-		return canvas.draw_rect(*self.xyTrans(x,y),*self.whTrans(width,height))
+		return canvas.draw_rect(*self.xyWorld(x,y),*self.whWorld(width,height))
 		
 	def draw_line(self,x1,y1,x2,y2):
-		return canvas.draw_line(*self.xyTrans(x1,y1),*self.xyTrans(x2,y2))
+		return canvas.draw_line(*self.xyWorld(x1,y1),*self.xyWorld(x2,y2))
 		
 	def draw_dashed_line(self,x1, y1, x2, y2, ndashes=43):
 	
@@ -66,23 +74,23 @@ class canvas_context(object):
 		canvas.draw_path()
 		
 	def draw_text(self,text, x, y, font_name='Helvetica', font_size=16.0):
-		canvas.draw_text(text, *self.xyTrans(x,y), font_name, font_size)
+		canvas.draw_text(text, *self.xyWorld(x,y), font_name, font_size)
 		
 	def move_to(self,x,y):
-		canvas.move_to(*self.xyTrans(x,y))
+		canvas.move_to(*self.xyWorld(x,y))
 	
 		
 	def add_line(self,x,y):
-		canvas.add_line(*self.xyTrans(x,y))
+		canvas.add_line(*self.xyWorld(x,y))
 		
 	def add_curve(cp1x, cp1y, cp2x, cp2y, x, y):
-		canvas.add_curve(*self.xyTrans(cp1x,cp1y), *self.xyTrans(cp2x,cp2y), *self.xyTrans(x,y))
+		canvas.add_curve(*self.xyWorld(cp1x,cp1y), *self.xyWorld(cp2x,cp2y), *self.xyWorld(x,y))
 	
-	def get_text_size(self,text, font_name='Helvetica', font_size=16.0):
-		return self.whTrans(*canvas.get_text_size(text, font_name, font_size))
+	def get_text_size(self, text, font_name='Helvetica', font_size=16.0):
+		''' size of text string in user coordinates '''
+		return self.whUser(*canvas.get_text_size(text, font_name, font_size))
 		
 if __name__ == "__main__":
-	#from pymooshi.genlibpy import tls
 	canvas.set_size(*ui.get_screen_size())
 	cnvs = canvas_context( user_frame=(-100,-100,200,200))
 	cnvs.draw_rect(10,10,80,80)
