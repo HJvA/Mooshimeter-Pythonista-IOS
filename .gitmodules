@@ -1,0 +1,3 @@
+[submodule "pyploty"]
+	path = pyploty
+	url = git://github.com/HJvA/pyploty.git
