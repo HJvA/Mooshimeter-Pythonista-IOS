@@ -21,15 +21,6 @@ Todo
  - Retrieve log files from the instrument
  - show depth buffer in a graph
 
-There are still some issues (some not too serious)
- - there is a BADREAD diagnostics message shown
- - some unknown data items in time_utc node when trigger continuous
- - depth buffer is dumped to time_utc node when analysis=2 but format not yet understood
- - BUF_LSB2NATIVE is 0.0 when analysis has not been set to 2 before
- - BUF_BPS has value 8 but should have value 24
- - CHn:BUF node does not return enough samples according to depth setting
- - internal temperature is not very accurate (can it be calibrated?)
-
 Refered products:
 
 http://omz-software.com/pythonista/
