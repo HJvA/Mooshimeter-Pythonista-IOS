@@ -1,9 +1,9 @@
 """ main user entry point for mooshimeter bluetooth multimeter """
 import ui
 import dialogs
-import Mooshimeter
-import multimeter as mm
-import tls
+from pymooshi import Mooshimeter
+from pymooshi.genlibpy import  multimeter as mm
+from pymooshi.genlibpy import tls
 import time
 
 print(tls.set_logger())

@@ -17,6 +17,7 @@ mmFunctions = {
 	TEMP_INTERN:('internal temperature','K'), TEMP_PT100:('temperature Pt100','°C')}
 
 def mmFunction(mmFunctionName):
+	''' get multimeter function code from function name '''
 	fnc=[key for key,value in mmFunctions.items() if value[0]==mmFunctionName]
 	return fnc[0]
 		

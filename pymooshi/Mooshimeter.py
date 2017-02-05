@@ -1,9 +1,14 @@
 """ top level multimeter abstraction to mooshimeter """
-import MooshimeterDevice
-import multimeter as mm
 import logging
 import time
-import tls
+if '.' in __name__:  # imported from higher level package
+	from .genlibpy import tls
+	from .genlibpy import multimeter as mm
+	from . import MooshimeterDevice
+else:	# running as __main__ or imported from same level module
+	from genlibpy import tls
+	from genlibpy import multimeter as mm
+	import MooshimeterDevice	
 
 logSTATE = {
 	0:"OK",

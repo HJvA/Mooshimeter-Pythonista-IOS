@@ -1,11 +1,17 @@
 """ low level mooshimeter class """
-import cbBLE
-import tls
 import time
 import zlib
 import binascii
 import struct
 import logging
+if '.' in __name__:  # imported from higher level package
+	from .genlibpy import cbBLE
+	from .genlibpy import tls
+else:	# running as __main__ or imported from other file in package
+	from genlibpy import cbBLE
+	from genlibpy import tls
+
+
 
 SERIN  = 0
 SEROUT = 1
@@ -133,7 +139,6 @@ class MooshimeterDevice (object):
 							vfact=1.0
 						vlen=len(self.aggregate)-2
 						vals = [tls.bytes_to_int(self.aggregate[i:i+3],'<') * vfact for i in range(3,vlen,3)]
-						#vals = [x.encode('hex') for x in struct.iter_unpack('ccc',self.aggregate[5:])]
 						logging.info('dtBIN(%d), explen=%d, len=%d fact:%f v:%s' % (shortcode,expected_len,vlen,vfact,','.join('{:}'.format(x) for x in vals)))
 					self.aggregate = bytearray() # release memory
 			else:
@@ -325,6 +330,7 @@ class MooshimeterDevice (object):
 		self.snode_callbacks[scode] = cb
 					
 if __name__ == "__main__":
+	#from instrumlib.tls import set_logger
 	tls.set_logger(filename='mooshi.log')
 	meter = MooshimeterDevice('FB55')       # ('FB55') is my meter (can be omitted for yours)
 	time.sleep(2)
@@ -339,13 +345,13 @@ if __name__ == "__main__":
 	meter.send_cmd('SAMPLING:DEPTH', 3)     # Depth 256
 	meter.send_cmd('CH1:MAPPING',0)         # CH1 select temperature input
 	meter.send_cmd('CH1:RANGE_I', 0)        # CH1 350K, 10A range
-	meter.send_cmd('CH1:ANALYSIS', 0)       # mean 
+	meter.send_cmd('CH1:ANALYSIS', 0)       # 0:mean 1:rms 2:buffer 
 	#meter.send_command('CH1:MEAN', 0)         # 
 		
 	meter.send_cmd('CH2:MAPPING', 2)        # CH2 select shared input
 	meter.send_cmd('SHARED', 1)             # CH2 select resistance
-	meter.send_cmd('CH2:ANALYSIS', 0)       # 0:mean 1:rms 2:buffer
-	meter.send_cmd('LOG:ON', 0)              # logging off
+	meter.send_cmd('CH2:ANALYSIS', 2)       # 0:mean 1:rms 2:buffer
+	meter.send_cmd('LOG:ON', 0)             # logging off
 	meter.send_cmd('LOG:INTERVAL')          # ms/1000
 	
 	#meter.send_cmd('SAMPLING:DEPTH', 2)

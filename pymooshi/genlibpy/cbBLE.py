@@ -3,10 +3,15 @@
 		reads/writes from/to characteristics
 """
 import cb
-import tls
 import time
 from collections import deque
 import logging
+if '.' in __name__:  # imported from higher level package
+	from . import tls
+else:
+	import tls	# gives error when called from main package also using tls
+
+
 
 cbPropMsg = [
 	(cb.CH_PROP_AUTHENTICATED_SIGNED_WRITES,'Authenticated'),
@@ -200,7 +205,7 @@ class bleDelegate (object):
 		
 			
 def discover_BLE_characteristics(lodBLE):
-	""" discover bleutooth le peripherals and their chracteristics
+	""" discover bluetooth le peripherals and their chracteristics
 		expects lodBLE : a list of dictionaries defining what to be searched
 		returns bleDelegate object
 	"""
